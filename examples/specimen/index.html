@@ -1,0 +1,193 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Spécimen — quelle police par défaut ?</title>
+
+<!-- Décision #13 : folio fournit une famille libre auto-hébergée, pour que le rendu
+     ne dépende pas du poste. Helvetica Neue, utilisée par parcours-parent, est
+     PROPRIÉTAIRE : on ne peut pas la redistribuer dans le dépôt.
+
+     Ce spécimen sert à trancher sur pièce, au vrai corps du document API (9,8 pt),
+     avec du vrai contenu : accents français, tableau dense, bloc de code, URL, et
+     les glyphes qui se confondent.
+
+     Les trois candidates sont sous licence SIL OFL 1.1. -->
+
+<link rel="stylesheet" href="/_folio/engine.css">
+<script type="module" src="/_folio/engine.js"></script>
+
+<style>
+@page { size: A4 portrait; margin: 16mm 16mm 14mm; }
+
+/* --- Les candidates, auto-hébergées --- */
+@font-face { font-family: "Plex"; src: url("fonts/ibm-plex-sans-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; }
+@font-face { font-family: "Plex"; src: url("fonts/ibm-plex-sans-latin-400-italic.woff2") format("woff2"); font-weight: 400; font-style: italic; }
+@font-face { font-family: "Plex"; src: url("fonts/ibm-plex-sans-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-style: normal; }
+@font-face { font-family: "PlexMono"; src: url("fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2"); font-weight: 400; }
+
+@font-face { font-family: "Source"; src: url("fonts/source-sans-3-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; }
+@font-face { font-family: "Source"; src: url("fonts/source-sans-3-latin-400-italic.woff2") format("woff2"); font-weight: 400; font-style: italic; }
+@font-face { font-family: "Source"; src: url("fonts/source-sans-3-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-style: normal; }
+@font-face { font-family: "SourceMono"; src: url("fonts/source-code-pro-latin-400-normal.woff2") format("woff2"); font-weight: 400; }
+
+@font-face { font-family: "Inter"; src: url("fonts/inter-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; }
+@font-face { font-family: "Inter"; src: url("fonts/inter-latin-400-italic.woff2") format("woff2"); font-weight: 400; font-style: italic; }
+@font-face { font-family: "Inter"; src: url("fonts/inter-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-style: normal; }
+
+.plex   { font-family: "Plex", sans-serif; }
+.plex   code, .plex pre   { font-family: "PlexMono", monospace; }
+.source { font-family: "Source", sans-serif; }
+.source code, .source pre { font-family: "SourceMono", monospace; }
+.inter  { font-family: "Inter", sans-serif; }
+.inter  code, .inter pre  { font-family: "SourceMono", monospace; }
+
+/* --- Page de comparaison directe --- */
+.trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6mm; margin-top: 4mm; }
+.trio > div { border-top: 2px solid #222; padding-top: 2mm; }
+.who { font-size: 8pt; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #666; }
+.licence { font-size: 7.5pt; color: #888; margin: 0 0 3mm; font-style: italic; }
+.big { font-size: 22pt; line-height: 1.1; margin: 2mm 0; }
+.confus { font-size: 13pt; letter-spacing: .04em; margin: 2mm 0 0; }
+.confus b { font-weight: 400; background: #fff3cd; }
+.mini { font-size: 9.8pt; line-height: 1.45; margin: 2mm 0 0; }
+
+/* --- Pages « en situation », au vrai corps du document API --- */
+.demo { font-size: 9.8pt; line-height: 1.45; break-before: page; }
+.demo h2 { font-size: 13pt; margin: 0 0 2.5mm; }
+.demo h3 { font-size: 11pt; margin: 5mm 0 2mm; }
+.demo pre { background: #f5f6f7; border-left: 2px solid #c9cfd4; padding: 2.5mm 3mm; font-size: 8.4pt; line-height: 1.35; }
+.demo :not(pre) > code { background: #f1f3f4; padding: 0 2px; border-radius: 2px; font-size: .92em; }
+.demo table { font-size: 8.8pt; margin: 3mm 0; }
+.demo th { background: #f5f6f7; }
+.etiquette { font-size: 8pt; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+             color: #fff; background: #222; padding: 1mm 2mm; display: inline-block; margin-bottom: 3mm; }
+</style>
+
+<h1 style="font-size:17pt;margin:0">Quelle police par défaut pour folio ?</h1>
+<p style="font-size:9.5pt;color:#555;margin:2mm 0 0;max-width:40em">
+  Helvetica Neue, utilisée par <i>parcours-parent</i>, est propriétaire : elle ne peut pas être
+  redistribuée dans le dépôt, donc elle ne peut pas être le défaut. Les trois candidates
+  ci-dessous sont sous licence SIL OFL 1.1, auto-hébergées, avec une compagne à chasse fixe.
+</p>
+
+<div class="trio">
+  <div class="plex">
+    <div class="who">IBM Plex Sans</div>
+    <p class="licence">avec IBM Plex Mono — même famille</p>
+    <div class="big">Portail<br>opérateur</div>
+    <p class="confus">Il1 · O0 · rn m · <b>&laquo;&nbsp;œuf&nbsp;&raquo;</b></p>
+    <p class="mini">Le parent règle les frais scolaires depuis l’application de l’opérateur, à son rythme.</p>
+  </div>
+  <div class="source">
+    <div class="who">Source Sans 3</div>
+    <p class="licence">avec Source Code Pro — même famille</p>
+    <div class="big">Portail<br>opérateur</div>
+    <p class="confus">Il1 · O0 · rn m · <b>&laquo;&nbsp;œuf&nbsp;&raquo;</b></p>
+    <p class="mini">Le parent règle les frais scolaires depuis l’application de l’opérateur, à son rythme.</p>
+  </div>
+  <div class="inter">
+    <div class="who">Inter</div>
+    <p class="licence">sans compagne à chasse fixe</p>
+    <div class="big">Portail<br>opérateur</div>
+    <p class="confus">Il1 · O0 · rn m · <b>&laquo;&nbsp;œuf&nbsp;&raquo;</b></p>
+    <p class="mini">Le parent règle les frais scolaires depuis l’application de l’opérateur, à son rythme.</p>
+  </div>
+</div>
+
+<!-- Les trois pages suivantes : contenu STRICTEMENT identique, au corps réel du
+     document API. C'est là que ça se joue — pas sur un mot en 22 points. -->
+
+<section class="demo plex">
+  <div class="etiquette">IBM Plex Sans + IBM Plex Mono</div>
+  <h2>3. Le transport de session</h2>
+  <p>
+    Le jeton d’accès vaut trente jours, le jeton de rafraîchissement quarante-cinq. Le parent
+    n’est <i>jamais</i> bloqué à la connexion : s’il n’a aucun apprenant rattaché, il peut
+    simplement en ajouter un. L’appel se fait avec <code>Authorization: Bearer …</code>, et
+    l’en-tête <code>X-Operator-Id</code> reste obligatoire côté opérateur.
+  </p>
+  <h3>Demander un code</h3>
+  <pre><code>POST /v1/auth/parent/otp/request
+{
+  "phone": "+228 90 00 00 09",
+  "locale": "fr"
+}</code></pre>
+  <p>Origine autorisée : <code>https://sandbox.api.schoollead.net</code> — Il1 O0 rn/m.</p>
+  <table>
+    <thead><tr><th>Code</th><th>Signification</th><th>Ce qu’il faut faire</th></tr></thead>
+    <tbody>
+      <tr><td>202</td><td>Code envoyé</td><td>Afficher l’écran de saisie</td></tr>
+      <tr><td>409</td><td>Un code est déjà valide</td><td>Réutiliser l’écran de saisie</td></tr>
+      <tr><td>422</td><td>Numéro non reconnu</td><td>Proposer la création de compte</td></tr>
+      <tr><td>429</td><td>Trop de demandes</td><td>Attendre le délai indiqué</td></tr>
+    </tbody>
+  </table>
+  <p>
+    <b>En gras</b>, en <i>italique</i>, et une énumération : établissement, année scolaire,
+    apprenant, formule. Les guillemets français «&nbsp;comme ceci&nbsp;», l’œsophage, l’Æquateur,
+    çà et là, 1 234,56 F CFA.
+  </p>
+</section>
+
+<section class="demo source">
+  <div class="etiquette">Source Sans 3 + Source Code Pro</div>
+  <h2>3. Le transport de session</h2>
+  <p>
+    Le jeton d’accès vaut trente jours, le jeton de rafraîchissement quarante-cinq. Le parent
+    n’est <i>jamais</i> bloqué à la connexion : s’il n’a aucun apprenant rattaché, il peut
+    simplement en ajouter un. L’appel se fait avec <code>Authorization: Bearer …</code>, et
+    l’en-tête <code>X-Operator-Id</code> reste obligatoire côté opérateur.
+  </p>
+  <h3>Demander un code</h3>
+  <pre><code>POST /v1/auth/parent/otp/request
+{
+  "phone": "+228 90 00 00 09",
+  "locale": "fr"
+}</code></pre>
+  <p>Origine autorisée : <code>https://sandbox.api.schoollead.net</code> — Il1 O0 rn/m.</p>
+  <table>
+    <thead><tr><th>Code</th><th>Signification</th><th>Ce qu’il faut faire</th></tr></thead>
+    <tbody>
+      <tr><td>202</td><td>Code envoyé</td><td>Afficher l’écran de saisie</td></tr>
+      <tr><td>409</td><td>Un code est déjà valide</td><td>Réutiliser l’écran de saisie</td></tr>
+      <tr><td>422</td><td>Numéro non reconnu</td><td>Proposer la création de compte</td></tr>
+      <tr><td>429</td><td>Trop de demandes</td><td>Attendre le délai indiqué</td></tr>
+    </tbody>
+  </table>
+  <p>
+    <b>En gras</b>, en <i>italique</i>, et une énumération : établissement, année scolaire,
+    apprenant, formule. Les guillemets français «&nbsp;comme ceci&nbsp;», l’œsophage, l’Æquateur,
+    çà et là, 1 234,56 F CFA.
+  </p>
+</section>
+
+<section class="demo inter">
+  <div class="etiquette">Inter (+ Source Code Pro, famille étrangère)</div>
+  <h2>3. Le transport de session</h2>
+  <p>
+    Le jeton d’accès vaut trente jours, le jeton de rafraîchissement quarante-cinq. Le parent
+    n’est <i>jamais</i> bloqué à la connexion : s’il n’a aucun apprenant rattaché, il peut
+    simplement en ajouter un. L’appel se fait avec <code>Authorization: Bearer …</code>, et
+    l’en-tête <code>X-Operator-Id</code> reste obligatoire côté opérateur.
+  </p>
+  <h3>Demander un code</h3>
+  <pre><code>POST /v1/auth/parent/otp/request
+{
+  "phone": "+228 90 00 00 09",
+  "locale": "fr"
+}</code></pre>
+  <p>Origine autorisée : <code>https://sandbox.api.schoollead.net</code> — Il1 O0 rn/m.</p>
+  <table>
+    <thead><tr><th>Code</th><th>Signification</th><th>Ce qu’il faut faire</th></tr></thead>
+    <tbody>
+      <tr><td>202</td><td>Code envoyé</td><td>Afficher l’écran de saisie</td></tr>
+      <tr><td>409</td><td>Un code est déjà valide</td><td>Réutiliser l’écran de saisie</td></tr>
+      <tr><td>422</td><td>Numéro non reconnu</td><td>Proposer la création de compte</td></tr>
+      <tr><td>429</td><td>Trop de demandes</td><td>Attendre le délai indiqué</td></tr>
+    </tbody>
+  </table>
+  <p>
+    <b>En gras</b>, en <i>italique</i>, et une énumération : établissement, année scolaire,
+    apprenant, formule. Les guillemets français «&nbsp;comme ceci&nbsp;», l’œsophage, l’Æquateur,
+    çà et là, 1 234,56 F CFA.
+  </p>
+</section>
