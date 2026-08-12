@@ -39,8 +39,10 @@
    dans chacune de ses sept sections, avec les numéros écrits à la main.
    Vérifié au spike 01 : @top-*, @bottom-*, counter(page) et counter(pages).
    --------------------------------------------------------------------------- */
+/* PAS de `size` ici : Paged.js retient la PREMIÈRE déclaration rencontrée, donc
+   un défaut posé par le moteur empêcherait définitivement tout document de choisir
+   son format. Le format appartient au document ; template/index.html le déclare. */
 @page {
-  size: A4 portrait;
   margin: 20mm 18mm 18mm;
 
   @bottom-right {
@@ -123,6 +125,10 @@ landscape-plate > .folio-plate {
   transform: translate(var(--shift), calc(-1 * var(--shift))) rotate(-90deg);
   transform-origin: center center;
 }
+
+/* `.bleed` — décor qui sort de la page volontairement (fond perdu, cercle
+   débordant). Marque l'élément comme exempt du contrôle de débordement : sans
+   elle, une couverture décorée ferait échouer le build à chaque fois. */
 
 /* ---------------------------------------------------------------------------
    Pages fixes — l'échappatoire au flux (décision #2).

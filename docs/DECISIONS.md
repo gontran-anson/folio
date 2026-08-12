@@ -155,7 +155,7 @@ Encadrés, grilles, bandeaux d'état, maquettes iPhone : **restent dans le docum
 |---|---|---|
 | 1 | ~~Chaîne de rendu nue sur un document jouet~~ **faite** | le pipeline tourne bout en bout (`examples/jouet/`) |
 | 2 | ~~`preview` + watch~~ **faite** | on peut travailler sans souffrir |
-| 3 | Portage de `parcours-parent` (`fixed-page`, `@page`, planches) | **premier PDF réel livrable** |
+| 3 | ~~Portage de `parcours-parent`~~ **fait** | **premier PDF réel livrable** — 8 feuilles, 7 numérotées |
 | 4 | Document API en flux (`<table-of-contents>`, CSS générique, tableaux) | l'autre moitié du moteur, éprouvée |
 | 5 | `init` + documentation | on sait enfin quoi générer |
 
@@ -192,6 +192,15 @@ Quatre défauts que seul le passage à l'exécution pouvait révéler.
 - **Le redressement des planches ne pouvait pas porter sur la page.** Tourner `.pagedjs_page` laissait une boîte de mise en page portrait de 297 mm pour 210 mm affichés : la planche chevauchait la page précédente. C'est la *feuille* qui tourne, dans une page à laquelle on donne son encombrement paysage — et il faut la recentrer d'abord, sans quoi elle tourne sur un centre qui n'est pas celui de la page.
 - **Le canal d'événements empêche `networkidle0`.** La connexion reste ouverte par construction, donc le réseau n'est jamais au repos en prévisualisation. Sans conséquence sur `build`, qui n'injecte pas le client — mais tout futur outil qui attendrait `networkidle0` sur une page de preview resterait bloqué.
 - **Le rechargement mémorise le défilement.** Repartir du haut à chaque sauvegarde rendrait la boucle inutilisable sur un document long ; la position est restaurée après pagination, pas avant, parce que la hauteur du document n'existe pas encore.
+
+### Ce que l'étape 3 a corrigé
+
+Le portage a tenu : couverture à fond perdu, charte, maquettes iPhone et numérotation sont fidèles, et les 14 en-têtes et pieds recopiés à la main ont disparu au profit de quatre boîtes de marge. Quatre découvertes en chemin.
+
+- **Le moteur ne doit PAS déclarer de format par défaut.** Paged.js retient la **première** déclaration `size` qu'il rencontre : le `size: A4 portrait` d'`engine.css` empêchait purement et simplement `parcours-parent` d'être en paysage, sans le moindre message. Le format appartient au document ; `engine.css` n'en impose plus.
+- **Le contenu d'une boîte de marge vit dans un `::after`.** Ni `textContent` ni `getComputedStyle` ne le lisent — ce dernier rend l'expression `counter(page)` non résolue. Toute vérification de folio passe donc par le rendu, jamais par le DOM. C'est la deuxième fois que ce piège coûte du temps (déjà au spike 01).
+- **Il fallait une échappatoire par élément au contrôle de débordement.** Les cercles décoratifs de la couverture sortent de la page **exprès** ; sans la classe `.bleed`, toute couverture décorée forcerait `--allow-overflow` sur le document entier, ce qui masquerait du même coup les vraies pertes de contenu.
+- **`counter-reset: page N` affiche N sur la page qui porte la règle**, pas N+1. La couverture ne doit pas compter : le premier flux réinitialise à 1.
 
 ## 7. Questions ouvertes
 

@@ -3,8 +3,9 @@
 Un HTML, une commande, un PDF paginé — avec les numéros de page, l'en-tête répété et
 le sommaire que Chrome ne sait pas faire tout seul.
 
-> **État : squelette.** Les décisions sont prises et les fondations techniques vérifiées,
-> mais aucune des trois commandes n'est implémentée. Voir [le plan](docs/DECISIONS.md#6-plan-de-construction).
+> **État : `build` et `preview` fonctionnent**, et un premier document réel est porté
+> dessus. Restent `init` et les composants couverture/sommaire.
+> Voir [le plan](docs/DECISIONS.md#6-plan-de-construction).
 
 En typographie, le *folio* est le numéro de page imprimé — c'est-à-dire précisément
 ce que le projet apporte.
@@ -47,7 +48,7 @@ un Chromium.
 ## Installation
 
 ```bash
-npm i github:gontran/folio#v0.1.0
+npm i github:gontran-anson/folio#v0.1.0
 ```
 
 Épinglez un **tag**, jamais une branche : npm met les dépendances git en cache par commit,
@@ -89,5 +90,5 @@ les pages composées, l'autre le flux :
 
 | Document | Ce qu'il prouve |
 |---|---|
-| `parcours-parent` (plateforme SchoolLead) | pages fixes, planches paysage, charte, en-tête/pied |
+| ~~`parcours-parent` (plateforme SchoolLead)~~ **porté** | pages fixes, charte, en-tête/pied, numérotation |
 | un document API converti | flux, coupures automatiques, sommaire, tableaux |

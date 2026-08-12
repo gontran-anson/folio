@@ -46,6 +46,12 @@ export async function checkOverflow(page, toleranceMm = TOLERANCE_MM) {
         // le conteneur de flux, inséré par Paged.js et dépourvu de classe
         (el.tagName === 'DIV' && !el.className && el.parentElement?.classList.contains('pagedjs_page_content'))
 
+      // `.bleed` : le débordement est VOULU — décor à fond perdu, cercle qui sort de
+      // la page. Sans cette échappatoire au niveau de l'élément, une couverture
+      // décorée obligerait à passer --allow-overflow sur tout le document, ce qui
+      // masquerait du même coup les vraies pertes de contenu.
+      const isBleed = (el) => el.closest('.bleed') !== null
+
       const found = []
       document.querySelectorAll(pageSelector).forEach((pageEl, index) => {
         const area = pageEl.querySelector('.pagedjs_page_content')
@@ -54,7 +60,7 @@ export async function checkOverflow(page, toleranceMm = TOLERANCE_MM) {
 
         let worst = { hauteur: { excess: 0, el: null }, largeur: { excess: 0, el: null } }
         for (const el of area.querySelectorAll('*')) {
-          if (isEngine(el)) continue
+          if (isEngine(el) || isBleed(el)) continue
           const r = el.getBoundingClientRect()
           if (r.width === 0 && r.height === 0) continue
           for (const [axis, excess] of [
