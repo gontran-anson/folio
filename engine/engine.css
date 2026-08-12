@@ -1,0 +1,123 @@
+/* ============================================================================
+   folio — feuille de base.
+
+   RÈGLE D'ÉCRITURE (décision #16) : on style des BALISES de document générique
+   (h1-h6, p, table, pre, blockquote, ul, ol), pas les classes d'un document
+   particulier. C'est ce qui permettra de brancher un convertisseur Markdown
+   plus tard sans redessiner quoi que ce soit. Discipline, pas travail en plus.
+
+   RÈGLE DE PÉRIMÈTRE (décision #4) : tout ce qui décrit l'apparence vit ici ou
+   dans le document. Il n'y a PAS de fichier de config de design.
+   ============================================================================ */
+
+/* ---------------------------------------------------------------------------
+   Polices — auto-hébergées, pour que le rendu ne dépende pas du poste (décision #13).
+   OUVERT : quelle famille libre (licence SIL, normale + grasse + chasse fixe).
+   Tant qu'elle n'est pas choisie, on retombe sur la pile système et le rendu
+   n'est PAS reproductible d'une machine à l'autre.
+   --------------------------------------------------------------------------- */
+/* @font-face { font-family: "folio-sans"; src: url("fonts/….woff2") format("woff2"); } */
+
+:root {
+  --folio-text: #1c1c1c;
+  --folio-muted: #6a6a6a;
+  --folio-rule: #dcdcdc;
+  --folio-body: 10.5pt;
+  --folio-leading: 1.45;
+}
+
+/* ---------------------------------------------------------------------------
+   Page — en-tête, pied et numérotation définis UNE FOIS.
+   C'est le gain principal du projet : le document d'origine recopiait ce bloc
+   dans chacune de ses sept sections, avec les numéros écrits à la main.
+   Vérifié au spike 01 : @top-*, @bottom-*, counter(page) et counter(pages).
+   --------------------------------------------------------------------------- */
+@page {
+  size: A4 portrait;
+  margin: 20mm 18mm 18mm;
+
+  @bottom-right {
+    content: counter(page) " / " counter(pages);
+    font-size: 8.5pt;
+    color: var(--folio-muted);
+  }
+}
+
+/* La couverture ne porte ni en-tête ni folio (décision : <cover-page> se met hors
+   numérotation). */
+@page :first {
+  margin: 0;
+  @top-left { content: none; }
+  @bottom-right { content: none; }
+}
+
+/* ---------------------------------------------------------------------------
+   Planche paysage — la feuille RESTE portrait, c'est le contenu qui tourne.
+   Voir docs/spikes/03-landscape-plate/. Le balisage intérieur est produit par
+   le composant <landscape-plate>, parce qu'il n'est pas reconstituable de
+   mémoire (décision #9).
+   --------------------------------------------------------------------------- */
+@page landscape-plate {
+  size: A4 portrait;
+  /* Marge non nulle : la planche porte son numéro de page comme les autres. */
+  margin: 8mm;
+}
+
+/* ---------------------------------------------------------------------------
+   Pages fixes — l'échappatoire au flux (décision #2).
+   ATTENTION : `overflow: hidden` écrête sans prévenir. C'est exactement pour ça
+   que le contrôle de débordement (src/overflow.mjs) fait ÉCHOUER le build.
+   --------------------------------------------------------------------------- */
+.fixed-page {
+  break-before: page;
+  break-after: page;
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------------
+   Texte courant — à étoffer avec l'étape 4 (document API en flux).
+   --------------------------------------------------------------------------- */
+body {
+  color: var(--folio-text);
+  font-size: var(--folio-body);
+  line-height: var(--folio-leading);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  break-after: avoid; /* jamais un titre seul en bas de page */
+  line-height: 1.15;
+}
+
+p, ul, ol, blockquote {
+  orphans: 2;
+  widows: 2;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+thead { display: table-header-group; } /* l'en-tête se répète sur chaque page */
+tr { break-inside: avoid; }
+th, td {
+  border-bottom: 1px solid var(--folio-rule);
+  padding: 3pt 4pt;
+  text-align: left;
+  vertical-align: top;
+}
+
+pre {
+  break-inside: avoid;
+  white-space: pre-wrap;
+}
+
+/* ---------------------------------------------------------------------------
+   Sommaire — les numéros sont résolus par le moteur de pagination, en une passe.
+   Vérifié au spike 01 : pas de double rendu, pas de point fixe.
+   --------------------------------------------------------------------------- */
+table-of-contents a::after {
+  /* Forme exactement vérifiée au spike 01. `leader(". ")` serait plus élégant
+     pour les points de conduite, mais son support n'a PAS été testé — ne pas
+     l'adopter sans un spike. */
+  content: " " target-counter(attr(href url), page);
+}

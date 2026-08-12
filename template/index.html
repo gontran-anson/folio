@@ -1,0 +1,35 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Titre du document</title>
+<meta name="author" content="I-MEDIA CONSULTING">
+<meta name="version" content="0.1">
+
+<!-- ÉBAUCHE. `folio init` est l'étape 5 du plan, volontairement la dernière :
+     on ne peut pas générer un bon squelette tant qu'on ne sait pas ce qu'est
+     un bon squelette. Ce fichier se figera une fois les deux documents de
+     recette portés. -->
+
+<!-- Le moteur est servi sous /_folio par `folio build` et `folio preview`.
+     NE PAS ouvrir ce fichier en double-cliquant : sous file://, Paged.js ne peut
+     pas lire la feuille de style, plante, et rend une page BLANCHE (spike 04).
+     Pour voir le document : `folio preview index.html`. -->
+<link rel="stylesheet" href="/_folio/engine.css">
+<script type="module" src="/_folio/engine.js"></script>
+
+<style>
+  /* Le style propre au document vit ici. Surcharge de la police par défaut,
+     couleurs, composants d'habillage (encadrés, grilles) : tout ce qui n'est
+     pas du moteur. */
+</style>
+
+<cover-page></cover-page>
+
+<table-of-contents depth="2"></table-of-contents>
+
+<h1 id="premier-chapitre">Premier chapitre</h1>
+<p>Le contenu coule et se pagine tout seul.</p>
+
+<landscape-plate>
+  <!-- Une illustration large. La feuille reste portrait ; le lecteur la verra
+       en paysage grâce au /Rotate posé sur le PDF. -->
+</landscape-plate>
