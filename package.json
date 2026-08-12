@@ -1,0 +1,29 @@
+{
+  "name": "folio",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Un HTML, une commande, un PDF paginé — numéros de page, en-tête répété, sommaire.",
+  "bin": {
+    "folio": "src/cli.mjs"
+  },
+  "files": [
+    "src",
+    "engine",
+    "template"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "spike:01": "node docs/spikes/01-target-counter/run.mjs",
+    "spike:02": "node docs/spikes/02-named-pages/mixed.mjs",
+    "spike:03": "node docs/spikes/03-landscape-plate/rotate.mjs",
+    "spike:04": "node docs/spikes/04-file-protocol/file-test.mjs"
+  },
+  "dependencies": {
+    "pagedjs": "^0.4.3",
+    "pdf-lib": "^1.17.1",
+    "puppeteer-core": "^25.6.0"
+  }
+}

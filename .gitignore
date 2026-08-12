@@ -1,0 +1,9 @@
+node_modules/
+
+# Sorties de rendu et de spike : régénérables, jamais commitées.
+*.pdf
+*.png
+docs/spikes/**/out.*
+docs/spikes/**/rotate-raw.pdf
+
+.DS_Store

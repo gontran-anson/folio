@@ -1,0 +1,44 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Spike target-counter</title>
+<script>
+  // Signal déterministe de fin de pagination, documenté par Paged.js.
+  window.PagedConfig = { after: () => { window.__pagedDone = true } }
+</script>
+<style>
+@page {
+  size: A4;
+  margin: 20mm;
+  @bottom-right { content: "Page " counter(page) " / " counter(pages); font: 10pt sans-serif; }
+  @top-left { content: "Spike — en-tête répété"; font: 9pt sans-serif; color: #888; }
+}
+body { font-family: sans-serif; }
+h2 { break-before: page; }
+.toc a::after {
+  /* LE point à vérifier : Paged.js résout-il target-counter ? */
+  content: " ......... " target-counter(attr(href url), page);
+  color: crimson; font-weight: bold;
+}
+.toc { list-style: none; padding: 0; }
+.toc li { margin: 6px 0; }
+.filler { height: 120mm; background: #f4f4f4; }
+</style>
+
+<h1>Document de spike</h1>
+<ul class="toc">
+  <li><a href="#chap1">Chapitre premier</a></li>
+  <li><a href="#chap2">Chapitre deuxième</a></li>
+  <li><a href="#chap3">Chapitre troisième</a></li>
+</ul>
+
+<h2 id="chap1">Chapitre premier</h2>
+<div class="filler">contenu 1</div>
+
+<h2 id="chap2">Chapitre deuxième</h2>
+<div class="filler">contenu 2</div>
+<div class="filler">contenu 2 bis</div>
+
+<h2 id="chap3">Chapitre troisième</h2>
+<div class="filler">contenu 3</div>
+
+<script src="/node_modules/pagedjs/dist/paged.polyfill.js"></script>

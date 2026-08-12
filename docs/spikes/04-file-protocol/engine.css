@@ -1,0 +1,6 @@
+@page { size: A4; margin: 20mm;
+  @bottom-right { content: "Page " counter(page) " / " counter(pages); font: 10pt sans-serif; } }
+body { font-family: sans-serif; }
+h2 { break-before: page; }
+.filler { height: 120mm; background: #eee; }
+.from-linked-sheet { color: crimson; font-weight: bold; }

@@ -1,0 +1,45 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Spike orientations mixtes</title>
+<script>
+  window.PagedConfig = { after: () => { window.__pagedDone = true } }
+</script>
+<style>
+@page {
+  size: A4 portrait;
+  margin: 20mm;
+  @bottom-right { content: "Page " counter(page) " / " counter(pages); font: 10pt sans-serif; }
+}
+/* La page nommée : même document, orientation opposée. */
+@page mockup {
+  size: A4 landscape;
+  margin: 10mm;
+  @bottom-right { content: "Page " counter(page) " / " counter(pages) " — PAYSAGE"; font: 10pt sans-serif; color: crimson; }
+}
+.fixed-page {
+  page: mockup;
+  break-before: page;
+  break-after: page;
+}
+body { font-family: sans-serif; }
+.filler { height: 150mm; background: #f0f0f0; padding: 4mm; }
+.illustration {
+  height: 160mm;
+  background: repeating-linear-gradient(45deg, #ffe0c0, #ffe0c0 20px, #ffd0a0 20px, #ffd0a0 40px);
+  border: 3px solid crimson;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24pt; font-weight: bold; color: crimson;
+}
+</style>
+
+<h1>Texte en portrait</h1>
+<div class="filler">portrait 1 — ce bloc doit rester en A4 portrait</div>
+
+<section class="fixed-page">
+  <div class="illustration">ILLUSTRATION PAYSAGE — doit faire 297mm de large</div>
+</section>
+
+<h1>Retour au portrait</h1>
+<div class="filler">portrait 2 — l'orientation doit être revenue en portrait</div>
+
+<script src="/node_modules/pagedjs/dist/paged.polyfill.js"></script>

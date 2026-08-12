@@ -1,0 +1,59 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Spike page paysage dans un document portrait</title>
+<script>
+  window.PagedConfig = { after: () => { window.__pagedDone = true } }
+</script>
+<style>
+@page {
+  size: A4 portrait;
+  margin: 20mm;
+  @bottom-right { content: "Page " counter(page) " / " counter(pages); font: 10pt sans-serif; }
+}
+/* La page paysage : marges nulles, contenu tourné. */
+@page landscape-plate {
+  size: A4 portrait;   /* la FEUILLE reste portrait */
+  margin: 0;
+}
+body { font-family: sans-serif; }
+.filler { height: 150mm; background: #f0f0f0; padding: 4mm; }
+
+/* Une planche paysage : occupe une feuille portrait entière,
+   son contenu est une boîte 297x210 tournée de 90°. */
+.landscape-plate {
+  page: landscape-plate;
+  break-before: page;
+  break-after: page;
+  width: 210mm; height: 297mm;
+  position: relative;
+  overflow: hidden;
+}
+.landscape-plate > .plate-inner {
+  position: absolute;
+  width: 297mm; height: 210mm;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) rotate(90deg);
+  transform-origin: center center;
+}
+.illustration {
+  width: 100%; height: 100%;
+  background: repeating-linear-gradient(45deg, #ffe8d0, #ffe8d0 24px, #ffd4a8 24px, #ffd4a8 48px);
+  border: 4px solid crimson;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28pt; font-weight: bold; color: crimson;
+}
+</style>
+
+<h1>Texte en portrait</h1>
+<div class="filler">portrait 1</div>
+
+<section class="landscape-plate">
+  <div class="plate-inner">
+    <div class="illustration">ILLUSTRATION PAYSAGE 297 x 210</div>
+  </div>
+</section>
+
+<h1>Retour au portrait</h1>
+<div class="filler">portrait 2</div>
+
+<script src="/node_modules/pagedjs/dist/paged.polyfill.js"></script>
