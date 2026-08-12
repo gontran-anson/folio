@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "private": true,
   "type": "module",
-  "description": "Un HTML, une commande, un PDF pagin\u00e9 \u2014 num\u00e9ros de page, en-t\u00eate r\u00e9p\u00e9t\u00e9, sommaire.",
+  "description": "Un HTML, une commande, un PDF paginé — numéros de page, en-tête répété, sommaire.",
   "bin": {
     "folio": "src/cli.mjs"
   },
