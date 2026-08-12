@@ -1,21 +1,46 @@
 // `folio build` — produit le PDF de livraison.
-//
-// ÉTAPE 1 DU PLAN. Non implémenté : c'est ici qu'on commence.
-//
-// La chaîne, dans cet ordre (docs/DECISIONS.md §5) :
-//
-//   1. serve()            monter le dossier du document + /_folio (moteur, polices)
-//   2. findChrome()       + puppeteer.launch({ executablePath, headless: 'new' })
-//   3. page.goto(origin)  waitUntil: 'networkidle0'
-//   4. attente            page.waitForFunction(() => window[DONE_FLAG] === true)
-//   5. relevé             index des pages `.pagedjs_landscape-plate_page` (pour l'étape 7)
-//   6. débordement        checkOverflow() -> ÉCHEC si dépassement (décision #12)
-//   7. page.pdf()         { printBackground: true, preferCSSPageSize: true }
-//   8. applyRotation()    /Rotate sur les planches relevées en 5
-//
-// Chaque maillon est déjà prouvé dans docs/spikes/ — il s'agit de les assembler,
-// pas de les inventer. Les spikes 01 et 03 contiennent le code exact des étapes 2 à 8.
+import { writeFile } from 'node:fs/promises'
+import { execFile } from 'node:child_process'
+import { basename, extname, resolve } from 'node:path'
 
-export async function build(_options) {
-  throw new Error("build : pas encore implémenté — étape 1 du plan (docs/DECISIONS.md §6)")
+import { openPaginated, findPlatePages } from './render.mjs'
+import { checkOverflow, formatOverflow, TOLERANCE_MM } from './overflow.mjs'
+import { applyRotation } from './rotate.mjs'
+
+export async function build({ input, out, open, 'allow-overflow': allowOverflow, timeout } = {}) {
+  if (!input) throw new Error('build : indiquez le document — folio build <doc.html>')
+
+  const documentPath = resolve(input)
+  const pdfPath = resolve(out ?? documentPath.replace(new RegExp(`${extname(documentPath)}$`), '.pdf'))
+  if (pdfPath === documentPath) throw new Error(`build : la sortie écraserait la source (${pdfPath})`)
+
+  const { page, close } = await openPaginated(documentPath, {
+    timeout: timeout ? Number(timeout) : undefined,
+  })
+
+  try {
+    const plates = await findPlatePages(page)
+
+    // Le contrôle passe AVANT le rendu : on ne produit pas un fichier qu'on
+    // s'apprête à déclarer invalide (décision #12).
+    const overflows = await checkOverflow(page)
+    if (overflows.length && !allowOverflow) throw new Error(formatOverflow(overflows))
+    if (overflows.length) {
+      console.warn(`folio : ${overflows.length} débordement(s) ignoré(s) — --allow-overflow`)
+    }
+
+    const raw = await page.pdf({ printBackground: true, preferCSSPageSize: true })
+    await writeFile(pdfPath, await applyRotation(raw, plates))
+
+    const pages = await page.evaluate(() => document.querySelectorAll('.pagedjs_page').length)
+    const plateNote = plates.length ? `, dont ${plates.length} planche(s) paysage` : ''
+    console.log(`folio : ${pages} page(s)${plateNote} → ${pdfPath}`)
+
+    if (open) execFile('open', [pdfPath], () => {})
+    return { pdfPath, pages, plates }
+  } finally {
+    await close()
+  }
 }
+
+export { TOLERANCE_MM }

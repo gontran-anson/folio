@@ -1,0 +1,44 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Document jouet — folio</title>
+
+<!-- Banc d'essai de l'étape 1 : il exerce la chaîne entière — flux, page fixe,
+     planche paysage, en-tête et pied. Les composants (couverture, sommaire) sont
+     de l'étape 4 et n'apparaissent pas ici. -->
+
+<link rel="stylesheet" href="/_folio/engine.css">
+<script type="module" src="/_folio/engine.js"></script>
+
+<style>
+  .bloc { height: 90mm; background: #f2f2f2; padding: 4mm; }
+  .illustration {
+    width: 100%; height: 100%;
+    background: repeating-linear-gradient(45deg, #ffe8d0, #ffe8d0 24px, #ffd4a8 24px, #ffd4a8 48px);
+    border: 3px solid crimson;
+    display: flex; align-items: center; justify-content: center;
+    font: 700 24pt sans-serif; color: crimson;
+  }
+  .page-composee { background: #eef4f4; padding: 10mm; }
+</style>
+
+<h1 id="flux">Contenu qui coule</h1>
+<p>Ce texte se pagine tout seul. Les pages suivantes doivent porter leur numéro.</p>
+<div class="bloc">bloc 1</div>
+<div class="bloc">bloc 2</div>
+
+<h1 id="fixe">Page composée</h1>
+<section class="fixed-page">
+  <div class="page-composee">
+    <h2>Cette page est posée à la main</h2>
+    <p>Elle ne doit pas être coupée, et son contenu ne doit pas déborder.</p>
+  </div>
+</section>
+
+<h1 id="planche">Planche paysage</h1>
+<landscape-plate>
+  <div class="illustration">ILLUSTRATION PAYSAGE</div>
+</landscape-plate>
+
+<h1 id="retour">Retour au portrait</h1>
+<p>L'orientation doit être revenue, et la numérotation être restée continue.</p>
+<div class="bloc">bloc 3</div>

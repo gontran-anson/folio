@@ -153,7 +153,7 @@ Encadrés, grilles, bandeaux d'état, maquettes iPhone : **restent dans le docum
 
 | # | Étape | Ce que ça débloque |
 |---|---|---|
-| 1 | Chaîne de rendu nue sur un document jouet | le pipeline tourne bout en bout |
+| 1 | ~~Chaîne de rendu nue sur un document jouet~~ **faite** | le pipeline tourne bout en bout (`examples/jouet/`) |
 | 2 | `preview` + watch | on peut travailler sans souffrir |
 | 3 | Portage de `parcours-parent` (`fixed-page`, `@page`, planches) | **premier PDF réel livrable** |
 | 4 | Document API en flux (`<table-of-contents>`, CSS générique, tableaux) | l'autre moitié du moteur, éprouvée |
@@ -177,6 +177,15 @@ Deux documents de recette, parce que `parcours-parent` seul **n'exerce aucune fo
 Tant que les deux ne sont pas rendus correctement, l'outil n'est pas fini.
 
 ---
+
+### Ce que l'étape 1 a corrigé
+
+Quatre défauts que seul le passage à l'exécution pouvait révéler.
+
+- **`@page :first` était un mauvais défaut.** Il zérotait la première page de *tout* document ; le jouet, qui commence par du texte, sortait sans marges ni folio. Remplacé par une page nommée `cover`, que seul `<cover-page>` réclame.
+- **La planche exige un calque interne**, donc `<landscape-plate>` a dû être implémenté dès l'étape 1. Posée sur l'enfant de l'auteur, la géométrie est surchargée par la première classe venue — `.illustration` (0,1,0) bat `landscape-plate > *` (0,0,1) — et l'illustration sort tournée puis rognée, sans message. Confirmation directe du critère #9.
+- **Le contrôle de débordement se trompait deux fois.** Il mesurait `.fixed-page`, qui grandit avec son contenu et ne déborde donc jamais d'elle-même ; puis `.pagedjs_area`, dont les conteneurs internes annoncent des dimensions fausses (2451 px pour 658 px réels), d'où un débordement fantôme de 474 mm sur chaque page. Il mesure désormais les éléments **du document** contre la zone de contenu, en ignorant les conteneurs de Paged.js.
+- **`pagedjs` ne déclare aucun sous-chemin dans `exports`**, donc `require.resolve('pagedjs/dist/…')` échoue. La résolution passe par la racine du paquet, isolée dans une seule fonction.
 
 ## 7. Questions ouvertes
 

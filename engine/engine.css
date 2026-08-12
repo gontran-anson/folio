@@ -24,6 +24,13 @@
   --folio-rule: #dcdcdc;
   --folio-body: 10.5pt;
   --folio-leading: 1.45;
+
+  /* Dimensions de la feuille. `size` n'accepte pas de variable, donc changer de
+     format impose de modifier @page ET ces deux valeurs — elles servent à
+     dimensionner les planches paysage, qui ne peuvent pas les déduire. */
+  --folio-sheet-width: 210mm;
+  --folio-sheet-height: 297mm;
+  --folio-plate-margin: 8mm;
 }
 
 /* ---------------------------------------------------------------------------
@@ -43,12 +50,20 @@
   }
 }
 
-/* La couverture ne porte ni en-tête ni folio (décision : <cover-page> se met hors
-   numérotation). */
-@page :first {
+/* La couverture ne porte ni en-tête ni folio.
+   Surtout PAS `@page :first` : ça zéroterait la première page de TOUT document,
+   couverture ou non — un document qui commence par du texte perdrait ses marges
+   et son numéro. On passe par une page nommée, que seul <cover-page> réclame. */
+@page cover {
+  size: A4 portrait;
   margin: 0;
-  @top-left { content: none; }
   @bottom-right { content: none; }
+}
+
+cover-page {
+  page: cover;
+  display: block;
+  break-after: page;
 }
 
 /* ---------------------------------------------------------------------------
@@ -61,6 +76,31 @@
   size: A4 portrait;
   /* Marge non nulle : la planche porte son numéro de page comme les autres. */
   margin: 8mm;
+}
+
+landscape-plate {
+  page: landscape-plate;
+  display: block;
+  break-before: page;
+  break-after: page;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Le calque interne, inséré par <landscape-plate> : boîte paysage, centrée,
+   tournée d'un quart de tour. Il appartient à folio, l'auteur ne le cible jamais —
+   c'est ce qui met la géométrie hors d'atteinte de ses propres classes. Sans lui,
+   une simple `.illustration { width: 100% }` suffisait à rogner la planche. */
+landscape-plate > .folio-plate {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(var(--folio-sheet-height) - 2 * var(--folio-plate-margin));
+  height: calc(var(--folio-sheet-width) - 2 * var(--folio-plate-margin));
+  transform: translate(-50%, -50%) rotate(90deg);
+  transform-origin: center center;
 }
 
 /* ---------------------------------------------------------------------------
@@ -79,6 +119,9 @@
    --------------------------------------------------------------------------- */
 body {
   color: var(--folio-text);
+  /* Pile provisoire, en attendant la famille auto-hébergée (décision #13).
+     Tant qu'elle n'est pas choisie, le rendu dépend du poste. */
+  font-family: var(--folio-font, "Helvetica Neue", Arial, "Segoe UI", sans-serif);
   font-size: var(--folio-body);
   line-height: var(--folio-leading);
 }
