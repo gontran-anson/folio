@@ -156,7 +156,7 @@ Encadrés, grilles, bandeaux d'état, maquettes iPhone : **restent dans le docum
 | 1 | ~~Chaîne de rendu nue sur un document jouet~~ **faite** | le pipeline tourne bout en bout (`examples/jouet/`) |
 | 2 | ~~`preview` + watch~~ **faite** | on peut travailler sans souffrir |
 | 3 | ~~Portage de `parcours-parent`~~ **fait** | **premier PDF réel livrable** — 8 feuilles, 7 numérotées |
-| 4 | Document en flux (`<cover-page>`, `<table-of-contents>`, CSS générique) — **fait** ; reste l'épreuve d'échelle sur le vrai document API | l'autre moitié du moteur, éprouvée |
+| 4 | ~~Document en flux~~ **faite** — `<cover-page>`, `<table-of-contents>`, CSS générique, et 35 pages tirées d'un vrai document API | l'autre moitié du moteur, éprouvée |
 | 5 | `init` + documentation | on sait enfin quoi générer |
 
 **`preview` avant le portage** : composer 7 pages A4 paysage en régénérant un PDF à chaque essai est le meilleur moyen d'abandonner à la page 3.
@@ -207,6 +207,7 @@ Le portage a tenu : couverture à fond perdu, charte, maquettes iPhone et numér
 - **Un composant ne peut rien construire dans `connectedCallback`.** Un sommaire placé en tête s'instancie pendant l'analyse du HTML : à cet instant, les titres qui le suivent **n'existent pas encore**. Le moteur appelle donc `folioPrepare()` sur les composants une fois le document complet, juste avant de paginer. `<landscape-plate>` échappe à la règle — il ne lit rien du reste du document.
 - **`@page cover` ne doit pas déclarer de `size` non plus.** Même piège qu'à l'étape 3, un cran plus bas : un format imposé là aurait interdit à un document paysage d'avoir une couverture paysage.
 - **`height: 100%` exige un parent qui en ait une.** Sans hauteur sur `cover-page`, les mentions de bas de couverture remontaient se coller au sous-titre.
+- **Une ancre commençant par un chiffre casse TOUTE la pagination.** `id="0-de-quoi-on-parle"` est légal en HTML mais illégal en CSS, et Paged.js résout `target-counter` par `querySelector` : un seul titre numéroté suffisait à faire échouer le rendu entier, avec un message qui ne désignait pas le titre fautif. Trouvé sur le premier document réel de 70 titres — le document jouet et l'exemple écrit à la main ne pouvaient pas le révéler.
 - **Le sommaire se met en page sur le LIEN, pas sur la ligne.** Le numéro ne peut venir que de `target-counter(attr(href …))`, donc d'un pseudo-élément du lien : c'est lui qui doit porter les trois éléments flexibles — texte, trait de conduite, numéro.
 
 ## 7. Questions ouvertes

@@ -114,7 +114,15 @@ class TableOfContents extends HTMLElement {
   }
 }
 
-/** Identifiant lisible et stable, unique dans le document. */
+/**
+ * Identifiant lisible, stable, unique — et surtout VALIDE COMME SÉLECTEUR CSS.
+ *
+ * Un identifiant qui commence par un chiffre est légal en HTML mais illégal en
+ * CSS : `#0-de-quoi-on-parle` fait lever `querySelector`. Or c'est précisément
+ * par `querySelector` que Paged.js résout `target-counter`, donc un titre
+ * numéroté — « 0. De quoi on parle » — suffisait à faire échouer TOUTE la
+ * pagination. Découvert sur un document réel de 70 titres.
+ */
 function slug(text, node) {
   const base =
     text
@@ -126,6 +134,8 @@ function slug(text, node) {
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
+      // Un chiffre en tête rendrait le sélecteur invalide : on préfixe.
+      .replace(/^(?=\d)/, 's-')
       .slice(0, 60) || 'section'
   let candidate = base
   let n = 2
