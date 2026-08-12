@@ -1,0 +1,126 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Contrat d'intégration opérateur</title>
+<meta name="eyebrow" content="Documentation technique">
+<meta name="subtitle" content="Banc d'essai du flux : couverture, sommaire aux vrais numéros, coupures automatiques, tableaux et code sur plusieurs pages.">
+<meta name="audience" content="Équipe d'intégration">
+<meta name="version" content="0.1">
+<meta name="author" content="I-MEDIA CONSULTING">
+<meta name="date" content="Août 2026">
+
+<!-- Banc d'essai de l'étape 4. Contrairement au document jouet, celui-ci
+     n'a AUCUNE page posée à la main : tout coule, et c'est le moteur qui
+     décide où les pages se coupent. Il vérifie ce que parcours-parent ne
+     peut pas vérifier — il est 100 % pages fixes. -->
+
+<link rel="stylesheet" href="/_folio/engine.css">
+<script type="module" src="/_folio/engine.js"></script>
+
+<style>
+  /* Le document ne déclare que son format : tout le reste vient du moteur,
+     ce qui est justement ce qu'on veut éprouver. */
+  @page { size: A4 portrait; }
+
+  .illustration {
+    width: 100%; height: 100%;
+    background: repeating-linear-gradient(45deg, #eef2f4, #eef2f4 24px, #dde5ea 24px, #dde5ea 48px);
+    border: 2px solid #7a8b95;
+    display: flex; align-items: center; justify-content: center;
+    font: 700 20pt sans-serif; color: #4a5b66;
+  }
+</style>
+
+<cover-page></cover-page>
+
+<table-of-contents depth="3"></table-of-contents>
+
+<h1>Authentification</h1>
+<p>
+  Le parent s'identifie par son numéro de téléphone. L'opérateur connaît déjà ce numéro,
+  donc le champ arrive pré-rempli et le code à usage unique n'est demandé qu'à la première
+  connexion, ou une fois la session expirée.
+</p>
+
+<h2>Demander un code</h2>
+<p>Cet appel est fait par la plateforme de l'opérateur, avec son jeton machine.</p>
+<pre><code>POST /v1/auth/parent/otp/request
+{
+  "phone": "+228 90 00 00 09",
+  "locale": "fr"
+}</code></pre>
+
+<h3>Réponses possibles</h3>
+<table>
+  <thead>
+    <tr><th>Code</th><th>Signification</th><th>Ce qu'il faut faire</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>202</td><td>Code envoyé</td><td>Afficher l'écran de saisie</td></tr>
+    <tr><td>409</td><td>Un code est déjà valide</td><td>Réutiliser l'écran de saisie</td></tr>
+    <tr><td>422</td><td>Numéro non reconnu</td><td>Proposer la création de compte</td></tr>
+    <tr><td>429</td><td>Trop de demandes</td><td>Attendre le délai indiqué</td></tr>
+  </tbody>
+</table>
+
+<h2>Vérifier le code</h2>
+<p>
+  Le code validé rend une session : un jeton d'accès de trente jours et un jeton de
+  rafraîchissement de quarante-cinq. Le jeton d'accès est celui du parent, et c'est lui
+  qui sert pour tous les appels suivants sauf mention contraire.
+</p>
+<blockquote>
+  Un écran sans ligne d'appel ne déclenche aucune requête : il se contente d'afficher ce que
+  l'écran précédent a déjà chargé.
+</blockquote>
+
+<h1>Apprenants</h1>
+<p>
+  Un pack porte sur un apprenant et une année scolaire. Le choix du pack se fait à l'ajout
+  de l'apprenant, jamais à la connexion — le parent n'est donc jamais bloqué.
+</p>
+
+<h2>Lister les apprenants rattachés</h2>
+<pre><code>GET /v1/parents/me/children</code></pre>
+
+<h2>Rattacher un apprenant</h2>
+<p>
+  L'établissement est choisi d'abord, l'apprenant ensuite, le pack en dernier. Les trois
+  étapes sont indépendantes et peuvent être reprises séparément.
+</p>
+
+<h3>Formules proposées</h3>
+<table>
+  <thead>
+    <tr><th>Pack</th><th>Suivi</th><th>Reste à payer</th><th>Reçus</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Gratuit</td><td>Montant du frais</td><td>Non</td><td>Non</td></tr>
+    <tr><td>Basic</td><td>Déjà payé</td><td>Oui</td><td>Sur demande</td></tr>
+    <tr><td>Premium</td><td>Complet</td><td>Oui</td><td>Automatiques</td></tr>
+  </tbody>
+</table>
+
+<h1>Schéma d'ensemble</h1>
+<p>La planche suivante récapitule les appels, dans l'ordre où le parent les déclenche.</p>
+
+<landscape-plate>
+  <div class="illustration">SCHÉMA D'ENSEMBLE — PLANCHE PAYSAGE</div>
+</landscape-plate>
+
+<h1>Paiement</h1>
+<p>
+  Le paiement est accessible dès le pack gratuit. Le parent choisit l'apprenant, puis le
+  frais à régler, saisit le montant qu'il souhaite verser et valide par son code.
+</p>
+
+<h2>Montants partiels</h2>
+<p>
+  Un versement partiel est toujours accepté. Le reste à payer n'est affiché qu'à partir du
+  pack Basic : en Gratuit, la liste ne montre que le montant du frais.
+</p>
+
+<h2>Reçus</h2>
+<p>
+  Le reçu est produit à la confirmation de l'encaissement, jamais à la demande de paiement —
+  un paiement accepté par l'opérateur mais non confirmé n'a pas de reçu.
+</p>

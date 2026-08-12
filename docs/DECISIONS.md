@@ -156,7 +156,7 @@ Encadrés, grilles, bandeaux d'état, maquettes iPhone : **restent dans le docum
 | 1 | ~~Chaîne de rendu nue sur un document jouet~~ **faite** | le pipeline tourne bout en bout (`examples/jouet/`) |
 | 2 | ~~`preview` + watch~~ **faite** | on peut travailler sans souffrir |
 | 3 | ~~Portage de `parcours-parent`~~ **fait** | **premier PDF réel livrable** — 8 feuilles, 7 numérotées |
-| 4 | Document API en flux (`<table-of-contents>`, CSS générique, tableaux) | l'autre moitié du moteur, éprouvée |
+| 4 | Document en flux (`<cover-page>`, `<table-of-contents>`, CSS générique) — **fait** ; reste l'épreuve d'échelle sur le vrai document API | l'autre moitié du moteur, éprouvée |
 | 5 | `init` + documentation | on sait enfin quoi générer |
 
 **`preview` avant le portage** : composer 7 pages A4 paysage en régénérant un PDF à chaque essai est le meilleur moyen d'abandonner à la page 3.
@@ -201,6 +201,13 @@ Le portage a tenu : couverture à fond perdu, charte, maquettes iPhone et numér
 - **Le contenu d'une boîte de marge vit dans un `::after`.** Ni `textContent` ni `getComputedStyle` ne le lisent — ce dernier rend l'expression `counter(page)` non résolue. Toute vérification de folio passe donc par le rendu, jamais par le DOM. C'est la deuxième fois que ce piège coûte du temps (déjà au spike 01).
 - **Il fallait une échappatoire par élément au contrôle de débordement.** Les cercles décoratifs de la couverture sortent de la page **exprès** ; sans la classe `.bleed`, toute couverture décorée forcerait `--allow-overflow` sur le document entier, ce qui masquerait du même coup les vraies pertes de contenu.
 - **`counter-reset: page N` affiche N sur la page qui porte la règle**, pas N+1. La couverture ne doit pas compter : le premier flux réinitialise à 1.
+
+### Ce que l'étape 4 a corrigé
+
+- **Un composant ne peut rien construire dans `connectedCallback`.** Un sommaire placé en tête s'instancie pendant l'analyse du HTML : à cet instant, les titres qui le suivent **n'existent pas encore**. Le moteur appelle donc `folioPrepare()` sur les composants une fois le document complet, juste avant de paginer. `<landscape-plate>` échappe à la règle — il ne lit rien du reste du document.
+- **`@page cover` ne doit pas déclarer de `size` non plus.** Même piège qu'à l'étape 3, un cran plus bas : un format imposé là aurait interdit à un document paysage d'avoir une couverture paysage.
+- **`height: 100%` exige un parent qui en ait une.** Sans hauteur sur `cover-page`, les mentions de bas de couverture remontaient se coller au sous-titre.
+- **Le sommaire se met en page sur le LIEN, pas sur la ligne.** Le numéro ne peut venir que de `target-counter(attr(href …))`, donc d'un pseudo-élément du lien : c'est lui qui doit porter les trois éléments flexibles — texte, trait de conduite, numéro.
 
 ## 7. Questions ouvertes
 

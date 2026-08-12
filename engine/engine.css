@@ -57,7 +57,9 @@
    couverture ou non — un document qui commence par du texte perdrait ses marges
    et son numéro. On passe par une page nommée, que seul <cover-page> réclame. */
 @page cover {
-  size: A4 portrait;
+  /* Pas de `size` non plus ici : la couverture suit le format du document.
+     Paged.js retient la première déclaration rencontrée, donc en imposer une
+     empêcherait un document paysage d'avoir une couverture paysage. */
   margin: 0;
   @bottom-right { content: none; }
 }
@@ -66,7 +68,46 @@ cover-page {
   page: cover;
   display: block;
   break-after: page;
+  /* Sans hauteur ici, le `height: 100%` du cadre se résout contre un parent en
+     hauteur automatique : les mentions de bas de couverture remontent se coller
+     sous le sous-titre. */
+  height: 100%;
 }
+
+/* Habillage par défaut, délibérément sobre : un document qui a une charte le
+   surcharge, et c'est le cas normal. Ce qui compte, c'est qu'une couverture
+   existe sans que l'auteur ait une seule ligne à écrire. */
+.folio-cover {
+  height: 100%;
+  padding: 40mm 30mm;
+  display: flex;
+  flex-direction: column;
+}
+.folio-cover-eyebrow {
+  margin: 0;
+  font-size: 9pt; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--folio-muted);
+}
+.folio-cover-title {
+  margin: 6mm 0 0;
+  font-size: 30pt; font-weight: 700; line-height: 1.1;
+  max-width: 16em;
+}
+.folio-cover-subtitle {
+  margin: 5mm 0 0;
+  font-size: 13pt; line-height: 1.4; color: var(--folio-muted);
+  max-width: 30em;
+}
+.folio-cover-meta {
+  margin: auto 0 0;               /* pousse les mentions en pied de couverture */
+  display: grid; grid-template-columns: auto 1fr; gap: 2mm 8mm;
+  font-size: 10pt;
+}
+.folio-cover-meta dt {
+  font-weight: 700; font-size: 8.5pt; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--folio-muted);
+}
+.folio-cover-meta dd { margin: 0; }
 
 /* ---------------------------------------------------------------------------
    Planche paysage — la feuille RESTE portrait, c'est le contenu qui tourne.
@@ -185,9 +226,51 @@ pre {
    Sommaire — les numéros sont résolus par le moteur de pagination, en une passe.
    Vérifié au spike 01 : pas de double rendu, pas de point fixe.
    --------------------------------------------------------------------------- */
-table-of-contents a::after {
-  /* Forme exactement vérifiée au spike 01. `leader(". ")` serait plus élégant
-     pour les points de conduite, mais son support n'a PAS été testé — ne pas
-     l'adopter sans un spike. */
-  content: " " target-counter(attr(href url), page);
+table-of-contents {
+  display: block;
+  break-after: page;
+}
+
+.folio-toc {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.folio-toc li { margin: 0 0 1.6mm; }
+
+/* C'est le LIEN qui porte la mise en page, pas la ligne : le numéro de page ne
+   peut venir que de `target-counter(attr(href …))`, donc d'un pseudo-élément du
+   lien. Trois éléments flexibles — le texte, le trait de conduite, le numéro —
+   réordonnés pour que le trait s'étire entre les deux autres. */
+.folio-toc a {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Le trait de conduite. `leader(". ")` ferait ça nativement, mais son support
+   n'a PAS été vérifié — ne pas l'adopter sans un spike. */
+.folio-toc a::before {
+  content: "";
+  order: 1;
+  flex: 1;
+  align-self: center;
+  border-bottom: 1px dotted var(--folio-rule);
+}
+.folio-toc-h1 { font-weight: 700; margin-top: 3mm; }
+.folio-toc-h2 { padding-left: 6mm; }
+.folio-toc-h3 { padding-left: 12mm; font-size: .94em; color: var(--folio-muted); }
+.folio-toc-h4 { padding-left: 18mm; font-size: .9em; color: var(--folio-muted); }
+
+/* Le numéro de page, résolu par le moteur de pagination en une seule passe.
+   Vérifié au spike 01 : pas de double rendu, pas de point fixe — le sommaire
+   peut occuper plusieurs pages sans fausser les numéros qu'il affiche. */
+.folio-toc a::after {
+  content: target-counter(attr(href url), page);
+  order: 2;
+  margin-left: 3px;
+  font-variant-numeric: tabular-nums;
+  color: var(--folio-muted);
 }
