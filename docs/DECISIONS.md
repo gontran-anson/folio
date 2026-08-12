@@ -213,7 +213,7 @@ Le portage a tenu : couverture à fond perdu, charte, maquettes iPhone et numér
 ## 7. Questions ouvertes
 
 - ~~**Nom du projet.**~~ Tranché le 2026-08-12 : **folio** — en typographie, le folio est le numéro de page imprimé, c'est-à-dire précisément ce que le projet apporte et qui manque aujourd'hui. La décision #6 garantit qu'un renommage ne toucherait aucun document.
-- **Quelle famille de polices par défaut** — licence SIL, chasses normale/grasse, plus une chasse fixe pour le code.
+- ~~**Quelle famille de polices par défaut**~~ Tranchée le 2026-08-12 : **IBM Plex Sans + IBM Plex Mono**, SIL OFL 1.1, auto-hébergées dans `engine/fonts/`. Choisies sur pièce (`examples/specimen/`), au corps réel d'un document technique. Inter, pourtant la plus proche d'Helvetica Neue, a été écartée : elle ne distingue pas `I` de `l`, ce qui est disqualifiant dans une doc pleine d'identifiants. Reste ouvert : un substitut libre à Helvetica Neue **pour `parcours-parent`**, qui est un autre problème — il ne s'agit pas de choisir une belle police mais d'en trouver une qui ne déplace pas une composition déjà réglée.
 - **Seuil de tolérance au débordement** (décision #12) : à calibrer sur le portage de `parcours-parent`.
 - **Sens de rotation des planches** (`/Rotate 90` ou `270`) : décide de quel bord est en haut. À trancher sur une illustration réelle.
 - **Convertisseur Markdown** : hors v1 (décision #16), mais le corpus `docs/` compte ~30 fichiers Markdown qui ne seront jamais réécrits en HTML à la main. C'est la suite naturelle du projet.
