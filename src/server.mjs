@@ -20,18 +20,41 @@ const TYPES = {
   '.webp': 'image/webp',
 }
 
+/** Canal d'événements du rechargement à chaud. Vide et inerte hors `preview`. */
+export const LIVE_PATH = '/_folio/live'
+
 /**
  * Sert un ou plusieurs répertoires, montés sur des préfixes d'URL.
- * @param {Record<string, string>} mounts  préfixe d'URL -> répertoire du disque, ex. { '/': docDir, '/_folio': engineDir }
- * @returns {Promise<{ origin: string, close: () => void }>}
+ *
+ * @param {Record<string, string>} mounts  préfixe d'URL -> répertoire, ex. { '/': docDir, '/_folio': engineDir }
+ * @param {object} [options]
+ * @param {number} [options.port]    0 = port libre choisi par le système
+ * @param {string} [options.inject]  HTML ajouté à la fin de chaque page servie (preview uniquement)
+ * @param {boolean} [options.live]   ouvre le canal d'événements sur LIVE_PATH
+ * @returns {Promise<{ origin: string, reload: () => void, close: () => void }>}
  */
-export async function serve(mounts) {
+export async function serve(mounts, { port = 0, inject, live = false } = {}) {
   const roots = Object.entries(mounts)
     .map(([prefix, dir]) => [prefix.replace(/\/$/, ''), resolve(dir)])
     .sort((a, b) => b[0].length - a[0].length) // le préfixe le plus spécifique gagne
 
+  const clients = new Set()
+
   const server = createServer(async (req, res) => {
     const urlPath = decodeURIComponent(req.url.split('?')[0])
+
+    if (live && urlPath === LIVE_PATH) {
+      res.writeHead(200, {
+        'content-type': 'text/event-stream',
+        'cache-control': 'no-store',
+        connection: 'keep-alive',
+      })
+      res.write('retry: 500\n\n')
+      clients.add(res)
+      req.on('close', () => clients.delete(res))
+      return
+    }
+
     for (const [prefix, dir] of roots) {
       if (prefix && !urlPath.startsWith(prefix + '/') && urlPath !== prefix) continue
       const rel = normalize(urlPath.slice(prefix.length)).replace(/^[/\\]+/, '')
@@ -39,11 +62,10 @@ export async function serve(mounts) {
       // Garde-fou : on ne sort jamais du répertoire monté.
       if (file !== dir && !file.startsWith(dir + sep)) break
       try {
-        const body = await readFile(file)
-        res.writeHead(200, {
-          'content-type': TYPES[extname(file)] ?? 'application/octet-stream',
-          'cache-control': 'no-store',
-        })
+        let body = await readFile(file)
+        const type = TYPES[extname(file)] ?? 'application/octet-stream'
+        if (inject && type.startsWith('text/html')) body = `${body}\n${inject}\n`
+        res.writeHead(200, { 'content-type': type, 'cache-control': 'no-store' })
         return res.end(body)
       } catch {
         /* essaie le montage suivant */
@@ -53,9 +75,16 @@ export async function serve(mounts) {
     res.end(`folio: introuvable — ${urlPath}`)
   })
 
-  await new Promise((r) => server.listen(0, '127.0.0.1', r))
+  await new Promise((r) => server.listen(port, '127.0.0.1', r))
+
   return {
     origin: `http://127.0.0.1:${server.address().port}`,
-    close: () => server.close(),
+    reload: () => {
+      for (const client of clients) client.write('event: reload\ndata: 1\n\n')
+    },
+    close: () => {
+      for (const client of clients) client.end()
+      server.close()
+    },
   }
 }

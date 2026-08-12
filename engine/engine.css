@@ -103,6 +103,27 @@ landscape-plate > .folio-plate {
   transform-origin: center center;
 }
 
+/* En prévisualisation, la planche est REDRESSÉE : à l'écran, la rotation à
+   l'endroit n'existe pas — elle vient du /Rotate posé sur le PDF. Sans ça,
+   l'auteur composerait son illustration couchée.
+
+   On tourne la FEUILLE, et on donne à la page son encombrement paysage : tourner
+   la page elle-même laissait une boîte portrait de 297 mm pour 210 mm affichés,
+   donc un chevauchement avec la page précédente. */
+:root.folio-preview .pagedjs_landscape-plate_page {
+  width: var(--folio-sheet-height);
+  height: var(--folio-sheet-width);
+}
+
+/* La feuille reste posée en haut à gauche d'une page devenue paysage : la tourner
+   sur son propre centre la laisserait à cheval. On recentre d'abord, du quart de
+   la différence entre les deux formats. */
+:root.folio-preview .pagedjs_landscape-plate_page .pagedjs_sheet {
+  --shift: calc((var(--folio-sheet-height) - var(--folio-sheet-width)) / 2);
+  transform: translate(var(--shift), calc(-1 * var(--shift))) rotate(-90deg);
+  transform-origin: center center;
+}
+
 /* ---------------------------------------------------------------------------
    Pages fixes — l'échappatoire au flux (décision #2).
    ATTENTION : `overflow: hidden` écrête sans prévenir. C'est exactement pour ça

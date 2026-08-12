@@ -154,7 +154,7 @@ Encadrés, grilles, bandeaux d'état, maquettes iPhone : **restent dans le docum
 | # | Étape | Ce que ça débloque |
 |---|---|---|
 | 1 | ~~Chaîne de rendu nue sur un document jouet~~ **faite** | le pipeline tourne bout en bout (`examples/jouet/`) |
-| 2 | `preview` + watch | on peut travailler sans souffrir |
+| 2 | ~~`preview` + watch~~ **faite** | on peut travailler sans souffrir |
 | 3 | Portage de `parcours-parent` (`fixed-page`, `@page`, planches) | **premier PDF réel livrable** |
 | 4 | Document API en flux (`<table-of-contents>`, CSS générique, tableaux) | l'autre moitié du moteur, éprouvée |
 | 5 | `init` + documentation | on sait enfin quoi générer |
@@ -186,6 +186,12 @@ Quatre défauts que seul le passage à l'exécution pouvait révéler.
 - **La planche exige un calque interne**, donc `<landscape-plate>` a dû être implémenté dès l'étape 1. Posée sur l'enfant de l'auteur, la géométrie est surchargée par la première classe venue — `.illustration` (0,1,0) bat `landscape-plate > *` (0,0,1) — et l'illustration sort tournée puis rognée, sans message. Confirmation directe du critère #9.
 - **Le contrôle de débordement se trompait deux fois.** Il mesurait `.fixed-page`, qui grandit avec son contenu et ne déborde donc jamais d'elle-même ; puis `.pagedjs_area`, dont les conteneurs internes annoncent des dimensions fausses (2451 px pour 658 px réels), d'où un débordement fantôme de 474 mm sur chaque page. Il mesure désormais les éléments **du document** contre la zone de contenu, en ignorant les conteneurs de Paged.js.
 - **`pagedjs` ne déclare aucun sous-chemin dans `exports`**, donc `require.resolve('pagedjs/dist/…')` échoue. La résolution passe par la racine du paquet, isolée dans une seule fonction.
+
+### Ce que l'étape 2 a corrigé
+
+- **Le redressement des planches ne pouvait pas porter sur la page.** Tourner `.pagedjs_page` laissait une boîte de mise en page portrait de 297 mm pour 210 mm affichés : la planche chevauchait la page précédente. C'est la *feuille* qui tourne, dans une page à laquelle on donne son encombrement paysage — et il faut la recentrer d'abord, sans quoi elle tourne sur un centre qui n'est pas celui de la page.
+- **Le canal d'événements empêche `networkidle0`.** La connexion reste ouverte par construction, donc le réseau n'est jamais au repos en prévisualisation. Sans conséquence sur `build`, qui n'injecte pas le client — mais tout futur outil qui attendrait `networkidle0` sur une page de preview resterait bloqué.
+- **Le rechargement mémorise le défilement.** Repartir du haut à chaque sauvegarde rendrait la boucle inutilisable sur un document long ; la position est restaurée après pagination, pas avant, parce que la hauteur du document n'existe pas encore.
 
 ## 7. Questions ouvertes
 
