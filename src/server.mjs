@@ -24,6 +24,40 @@ const TYPES = {
 export const LIVE_PATH = '/_folio/live'
 
 /**
+ * La plomberie du moteur, injectée au vol dans chaque page servie.
+ *
+ * Le document N'A PAS à l'écrire : ces deux lignes n'ont de sens que servies par folio,
+ * puisque sous `file://` la pagination échoue de toute façon (spike 04). Les laisser à
+ * la charge de l'auteur, c'était deux lignes à recopier, un chemin absolu à ne pas se
+ * tromper, et un fichier qui ne ressemblait plus à du HTML ordinaire.
+ *
+ * Un document qui les déclare déjà n'est pas touché : on ne charge jamais deux fois.
+ */
+const ENGINE_TAGS =
+  '<link rel="stylesheet" href="/_folio/engine.css">\n' +
+  '<script type="module" src="/_folio/engine.js"></script>'
+
+/**
+ * Insère la plomberie AU DÉBUT du <head>, jamais à la fin.
+ *
+ * L'ordre n'est pas un détail : engine.css est une feuille de BASE, que le document
+ * surcharge. Injectée avant `</head>`, elle passait après le `<style>` du document et
+ * gagnait donc la cascade — la charte de l'auteur se faisait écraser par les valeurs
+ * par défaut du moteur, et un document réel s'est mis à déborder.
+ *
+ * On se place juste après la déclaration de charset quand elle existe, pour qu'elle
+ * reste dans les premiers octets du fichier comme la spécification l'exige.
+ */
+function injectHead(html, tags) {
+  if (html.includes('/_folio/engine.js')) return html
+  const charset = html.match(/<meta[^>]+charset[^>]*>/i)
+  if (charset) return html.replace(charset[0], `${charset[0]}\n${tags}`)
+  const head = html.match(/<head[^>]*>/i)
+  if (head) return html.replace(head[0], `${head[0]}\n${tags}`)
+  return `${tags}\n${html}`
+}
+
+/**
  * Sert un ou plusieurs répertoires, montés sur des préfixes d'URL.
  *
  * @param {Record<string, string>} mounts  préfixe d'URL -> répertoire, ex. { '/': docDir, '/_folio': engineDir }
@@ -64,7 +98,10 @@ export async function serve(mounts, { port = 0, inject, live = false } = {}) {
       try {
         let body = await readFile(file)
         const type = TYPES[extname(file)] ?? 'application/octet-stream'
-        if (inject && type.startsWith('text/html')) body = `${body}\n${inject}\n`
+        if (type.startsWith('text/html')) {
+          body = injectHead(String(body), ENGINE_TAGS)
+          if (inject) body = `${body}\n${inject}\n`
+        }
         res.writeHead(200, { 'content-type': type, 'cache-control': 'no-store' })
         return res.end(body)
       } catch {

@@ -1,35 +1,40 @@
 <!doctype html>
-<meta charset="utf-8">
-<title>__TITRE__</title>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>__TITRE__</title>
 
-<!-- Ces méta-données alimentent <cover-page>. Retirez-en une, elle disparaît
-     de la couverture ; il n'y a rien d'autre à faire. -->
-<meta name="eyebrow" content="Sous-titre de rubrique">
-<meta name="subtitle" content="Une phrase qui dit de quoi parle ce document.">
-<meta name="audience" content="À qui il s'adresse">
-<meta name="version" content="0.1">
-<meta name="author" content="">
+  <!-- Ces méta-données alimentent <cover-page>. Retirez-en une, elle disparaît
+       de la couverture ; il n'y a rien d'autre à faire. -->
+  <meta name="eyebrow" content="Sous-titre de rubrique">
+  <meta name="subtitle" content="Une phrase qui dit de quoi parle ce document.">
+  <meta name="audience" content="À qui il s'adresse">
+  <meta name="version" content="0.1">
+  <meta name="author" content="">
 
-<!-- NE PAS ouvrir ce fichier en double-cliquant dessus : sous file://, le
-     navigateur refuse à folio la lecture de sa feuille de style, la pagination
-     échoue et la page reste BLANCHE, sans message.
-     Pour voir le document : `npm run preview`. -->
-<link rel="stylesheet" href="/_folio/engine.css">
-<script type="module" src="/_folio/engine.js"></script>
+  <style>
+    /* Le format appartient au document : folio n'en impose aucun, parce que le
+       moteur de pagination retient la PREMIÈRE déclaration `size` qu'il rencontre
+       — un défaut posé par l'outil empêcherait tout document d'en changer.
+       Cette ligne n'est donc pas facultative. */
+    @page { size: A4 portrait; }
 
-<style>
-  /* Le format appartient au document : folio n'en impose aucun, parce que le
-     moteur de pagination retient la PREMIÈRE déclaration `size` qu'il rencontre
-     — un défaut posé par l'outil empêcherait tout document d'en changer.
-     Cette ligne n'est donc pas facultative. */
-  @page { size: A4 portrait; }
+    /* Le reste de la charte vit ici : couleurs, corps, surcharges.
+       Pour changer de police :
+         :root { --folio-font: "…", sans-serif; --folio-mono: "…", monospace; }
+       Les polices par défaut (Source Sans 3, Source Code Pro) sont fournies et
+       auto-hébergées, donc le rendu ne dépend pas du poste. */
+  </style>
+</head>
 
-  /* Le reste de la charte du document vit ici : couleurs, corps, surcharges.
-     Pour changer de police :
-       :root { --folio-font: "…", sans-serif; --folio-mono: "…", monospace; }
-     Les polices par défaut (Source Sans 3, Source Code Pro) sont fournies et
-     auto-hébergées, donc le rendu ne dépend pas du poste. */
-</style>
+<!-- `lang="fr"` ci-dessus n'est pas décoratif : il pilote la césure à l'impression.
+
+     Ce fichier ne charge NI feuille de style NI script de folio : le moteur les
+     injecte lui-même en servant la page. Vous n'avez donc rien à recopier — mais
+     n'ouvrez pas ce fichier en double-cliquant dessus, il s'afficherait sans mise
+     en forme. Pour le voir : `npm run preview`. -->
+
+<body>
 
 <cover-page></cover-page>
 
@@ -76,3 +81,6 @@
     Une illustration large
   </div>
 </landscape-plate>
+
+</body>
+</html>

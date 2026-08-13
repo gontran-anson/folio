@@ -68,14 +68,20 @@ export async function openPaginated(documentPath, { timeout = 30000 } = {}) {
     page.on('pageerror', (e) => consoleErrors.push(String(e.message ?? e)))
     page.on('requestfailed', (r) => consoleErrors.push(`${r.url()} — ${r.failure()?.errorText}`))
 
-    await page.goto(`${server.origin}/${fileName}`, { waitUntil: 'networkidle0' })
+    // `domcontentloaded`, PAS `networkidle0` : l'attente réseau est redondante, le
+    // drapeau de fin de pagination étant le signal qui fait autorité, et elle ajoute
+    // une condition de plus qui peut expirer sans rien apprendre.
+    await page.goto(`${server.origin}/${fileName}`, { waitUntil: 'domcontentloaded', timeout })
 
     // On surveille les deux drapeaux : un échec de pagination doit remonter son
     // message, pas se traduire par un délai dépassé trente secondes plus tard.
     await page
       .waitForFunction(
         (done, failed) => window[done] === true || typeof window[failed] === 'string',
-        { timeout },
+        // Sonde à intervalle fixe plutôt que le défaut `raf` : la pagination d'un long
+        // document sature le fil principal, et rien ne garantit qu'un rappel d'animation
+        // s'y intercale. Précaution, pas correctif d'un bogue observé.
+        { timeout, polling: 200 },
         DONE_FLAG,
         ERROR_FLAG
       )

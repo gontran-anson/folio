@@ -245,6 +245,36 @@ Piège rencontré : `puppeteer.executablePath()` est **asynchrone** depuis puppe
 traiter comme une valeur donne un chemin `Promise { <pending> }` et un message d'erreur qui
 accuse un Chromium manquant.
 
+### Le document redevient du HTML ordinaire — le 2026-08-13
+
+Les documents n'avaient ni `<html>`, ni `<head>`, ni `<body>`, et devaient déclarer eux-mêmes
+les deux lignes de plomberie du moteur. Deux corrections liées :
+
+- **Structure conventionnelle.** `<!doctype>`, `<html lang="fr">`, `<head>`, `<body>`. Le `lang`
+  n'est pas décoratif : il pilote la césure à l'impression.
+- **folio injecte sa plomberie en servant la page**, comme il le faisait déjà pour le client de
+  rechargement. Le document ne référence plus `/_folio/` du tout. On ne perd rien : le
+  double-clic était déjà mort (spike 04), donc ces deux lignes n'avaient de valeur que servies.
+  Un document qui les déclare encore n'est pas touché — jamais de double chargement.
+
+**L'ordre d'injection est une invariante, pas un détail.** Placée avant `</head>`, la feuille du
+moteur passait après le `<style>` du document et gagnait la cascade : la charte de l'auteur se
+faisait écraser par les valeurs par défaut, et `parcours-parent` s'est mis à déborder. Elle
+s'injecte donc en TÊTE de `<head>`, juste après le charset — `engine.css` est une base, le
+document surcharge.
+
+Trois pièges au passage, dont deux faux diagnostics de ma part :
+
+1. **`page.pdf()` a sa propre limite de protocole**, distincte de celle de la pagination, et ses
+   30 s par défaut ne suffisent pas à un document long. L'échec ne disait rien d'utile : un
+   « Timed out after waiting 30000ms » nu, sans mention du PDF.
+2. J'ai d'abord accusé la sonde `raf` de `waitForFunction`, puis l'attente `networkidle0`. Les
+   deux changements ont été conservés — ils sont défendables en eux-mêmes — mais **aucun
+   n'était la cause**, et leurs commentaires ont été rectifiés pour ne pas laisser croire le
+   contraire.
+3. Un dossier de document exécute le folio **installé**, pas le code local. Une modification du
+   moteur ne se voit pas tant que le tag n'est pas publié et le verrou refait.
+
 ## 7. Questions ouvertes
 
 - ~~**Nom du projet.**~~ Tranché le 2026-08-12 : **folio** — en typographie, le folio est le numéro de page imprimé, c'est-à-dire précisément ce que le projet apporte et qui manque aujourd'hui. La décision #6 garantit qu'un renommage ne toucherait aucun document.

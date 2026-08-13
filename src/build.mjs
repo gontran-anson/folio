@@ -7,6 +7,9 @@ import { openPaginated, findPlatePages } from './render.mjs'
 import { checkOverflow, formatOverflow, TOLERANCE_MM } from './overflow.mjs'
 import { applyRotation } from './rotate.mjs'
 
+/** L'impression d'un long document dépasse largement la limite par défaut de 30 s. */
+const PDF_TIMEOUT = 180_000
+
 export async function build({ input, out, open, 'allow-overflow': allowOverflow, timeout } = {}) {
   if (!input) throw new Error('build : indiquez le document — folio build <doc.html>')
 
@@ -29,7 +32,15 @@ export async function build({ input, out, open, 'allow-overflow': allowOverflow,
       console.warn(`folio : ${overflows.length} débordement(s) ignoré(s) — --allow-overflow`)
     }
 
-    const raw = await page.pdf({ printBackground: true, preferCSSPageSize: true })
+    // `timeout` explicite : l'impression a sa PROPRE limite de protocole, distincte de
+    // celle de la pagination, et sa valeur par défaut de 30 s ne suffit pas à un document
+    // long. L'échec ne disait rien d'utile — un « Timed out after waiting 30000ms » nu,
+    // sans mention du PDF. Vu sur 34 pages.
+    const raw = await page.pdf({
+      printBackground: true,
+      preferCSSPageSize: true,
+      timeout: PDF_TIMEOUT,
+    })
     await writeFile(pdfPath, await applyRotation(raw, plates))
 
     const pages = await page.evaluate(() => document.querySelectorAll('.pagedjs_page').length)

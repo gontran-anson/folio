@@ -9,7 +9,7 @@ projet apporte, et ce qui manquait.
 ## Démarrer
 
 ```bash
-npx github:gontran-anson/folio#v0.6.0 init mon-document
+npx github:gontran-anson/folio#v0.7.0 init mon-document
 cd mon-document
 npm install
 npm run preview     # sert le document et ouvre le navigateur
@@ -114,7 +114,7 @@ npm install && npm run spike:01
 ## Installation
 
 ```bash
-npm i github:gontran-anson/folio#v0.6.0
+npm i github:gontran-anson/folio#v0.7.0
 ```
 
 Épinglez un **tag**, jamais une branche : npm met les dépendances git en cache par commit,
