@@ -1,6 +1,6 @@
 {
   "name": "folio",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "private": true,
   "type": "module",
   "description": "Un HTML, une commande, un PDF paginé — numéros de page, en-tête répété, sommaire.",
@@ -16,6 +16,7 @@
     "node": ">=20"
   },
   "scripts": {
+    "test": "node --test \"tests/**/*.test.mjs\"",
     "spike:01": "node docs/spikes/01-target-counter/run.mjs",
     "spike:02": "node docs/spikes/02-named-pages/mixed.mjs",
     "spike:03": "node docs/spikes/03-landscape-plate/rotate.mjs",

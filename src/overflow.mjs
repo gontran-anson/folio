@@ -59,16 +59,44 @@ export async function checkOverflow(page, toleranceMm = TOLERANCE_MM) {
         const box = area.getBoundingClientRect()
 
         let worst = { hauteur: { excess: 0, el: null }, largeur: { excess: 0, el: null } }
+        let orphelin = null
         for (const el of area.querySelectorAll('*')) {
           if (isEngine(el) || isBleed(el)) continue
-          const r = el.getBoundingClientRect()
-          if (r.width === 0 && r.height === 0) continue
-          for (const [axis, excess] of [
-            ['hauteur', r.bottom - box.bottom],
-            ['largeur', r.right - box.right],
-          ]) {
-            if (excess > worst[axis].excess) worst[axis] = { excess, el }
+
+          // FRAGMENT PAR FRAGMENT, jamais `getBoundingClientRect()` : celui-ci rend
+          // l'UNION des boîtes d'un élément, et un bloc coupé entre deux pages a donc
+          // une union qui déborde forcément de la page où on le mesure. C'est ce qui
+          // produisait un débordement fantôme de 474 mm sur un document parfaitement
+          // sain — un simple paragraphe à cheval suffisait à bloquer le build.
+          for (const r of el.getClientRects()) {
+            if (r.width === 0 && r.height === 0) continue
+            // On ne retient que les fragments qui CHEVAUCHENT réellement la zone.
+            // Paged.js laisse dans le DOM du contenu destiné aux pages suivantes,
+            // posé loin à droite (x ≈ 1870 pour une zone qui s'arrête à 734) : le
+            // compter donnait un débordement fantôme de 474 mm sur un document sain.
+            // Un vrai débordement commence DANS la page et en sort ; celui-là n'y
+            // entre jamais.
+            const chevauche =
+              r.left < box.right && r.right > box.left && r.top < box.bottom && r.bottom > box.top
+            if (!chevauche) {
+              // Ni sur cette page, ni sur une autre : Paged.js n'a pas su le placer.
+              // Ça arrive avec un bloc de hauteur fixe qu'il ne peut pas couper. Le
+              // contenu disparaît du PDF — c'est exactement ce que la garde existe
+              // pour empêcher, mais ça ne se mesure pas comme un débordement.
+              if (r.height > tolerancePx) orphelin ??= el
+              continue
+            }
+            for (const [axis, excess] of [
+              ['hauteur', r.bottom - box.bottom],
+              ['largeur', r.right - box.right],
+            ]) {
+              if (excess > worst[axis].excess) worst[axis] = { excess, el }
+            }
           }
+        }
+
+        if (orphelin) {
+          found.push({ page: index + 1, axis: 'non placé', overflowPx: 0, culprit: label(orphelin) })
         }
 
         for (const axis of ['hauteur', 'largeur']) {
@@ -96,8 +124,11 @@ export async function checkOverflow(page, toleranceMm = TOLERANCE_MM) {
 
 /** Message d'échec : il doit dire quoi corriger, pas seulement qu'on a échoué. */
 export function formatOverflow(found) {
-  const lines = found.map(
-    (f) => `  page ${f.page} — ${f.overflowMm} mm de trop en ${f.axis}, à partir de ${f.culprit}`
+  const lines = found.map((f) =>
+    f.axis === 'non placé'
+      ? `  page ${f.page} — ${f.culprit} n'a pas pu être placé : Paged.js ne sait pas couper` +
+        ' un bloc de hauteur fixe, et le contenu disparaît du PDF'
+      : `  page ${f.page} — ${f.overflowMm} mm de trop en ${f.axis}, à partir de ${f.culprit}`
   )
   return [
     `${found.length} débordement(s) — ce contenu serait écrêté sans trace dans le PDF :`,

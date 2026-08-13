@@ -9,7 +9,7 @@ projet apporte, et ce qui manquait.
 ## Démarrer
 
 ```bash
-npx github:gontran-anson/folio#v0.7.0 init mon-document
+npx github:gontran-anson/folio#v0.8.0 init mon-document
 cd mon-document
 npm install
 npm run preview     # sert le document et ouvre le navigateur
@@ -114,13 +114,23 @@ npm install && npm run spike:01
 ## Installation
 
 ```bash
-npm i github:gontran-anson/folio#v0.7.0
+npm i github:gontran-anson/folio#v0.8.0
 ```
 
 Épinglez un **tag**, jamais une branche : npm met les dépendances git en cache par commit,
 et une branche qui bouge donne des installations divergentes selon qui a le cache chaud.
 Changer de tag demande de supprimer `node_modules` et le verrou — sans quoi npm sert sa
 résolution en cache.
+
+## Tests
+
+```bash
+npm test        # six tests, huit secondes
+```
+
+Ils lancent tous un vrai Chromium sur un vrai document. C'est lent pour des tests, mais c'est
+le seul niveau où les bogues de ce projet se produisent : ils vivent dans l'interaction entre
+Paged.js, Chrome et la cascade CSS, pas dans les fonctions.
 
 ## Structure
 

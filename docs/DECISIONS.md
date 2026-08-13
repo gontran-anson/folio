@@ -299,9 +299,21 @@ Le contrôle de débordement, que je soupçonnais d'être quadratique, coûte di
 on l'interrompait. `preview` gérait déjà `SIGINT` ; `build` n'écoutait rien, donc un Ctrl+C, un
 `SIGTERM` ou un délai de CI laissaient dix processus derrière. Corrigé.
 
-**Pas de banc de test pour verrouiller ça** : folio n'a aucune suite de tests. La sonde utilisée
-— lancer un build, l'interrompre, compter les processus survivants — est reproductible à la
-main mais n'est ancrée nulle part. C'est la première chose qui manquerait si le projet grossit.
+**Une suite de tests, enfin** (`npm test`, `node:test`, aucune dépendance). Six tests, huit
+secondes. Ils lancent tous un vrai Chromium sur un vrai document, parce que c'est le seul
+niveau où les bogues de ce projet se produisent : tous ceux qu'on a trouvés vivaient dans
+l'interaction entre Paged.js, Chrome et la cascade CSS, jamais dans nos fonctions.
+
+Le premier test écrit a immédiatement trouvé un **faux positif de la garde de débordement** :
+474 mm annoncés sur un document sain. `getBoundingClientRect()` rend l'UNION des fragments
+d'un élément, et Paged.js gare hors champ (x ≈ 1870 pour une zone qui s'arrête à 734) le
+contenu destiné aux pages suivantes. On mesure donc désormais fragment par fragment, en ne
+retenant que ceux qui chevauchent réellement la page.
+
+Ce faisant, une deuxième chose est apparue : **Paged.js ne sait pas repousser un bloc de
+hauteur fixe insécable**. Il le laisse garé hors champ, et le contenu disparaît du PDF sans
+qu'aucun débordement ne soit mesurable. C'est maintenant détecté et signalé à part — « n'a pas
+pu être placé » — parce que ça ne se corrige pas comme un débordement.
 
 ## 7. Questions ouvertes
 
