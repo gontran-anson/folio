@@ -54,10 +54,25 @@ export async function openPaginated(documentPath, { timeout = 30000 } = {}) {
     headless: 'new',
   })
 
+  // Un build interrompu — Ctrl+C, SIGTERM, délai d'une CI — laissait DIX processus
+  // Chromium vivants : le principal et ses moteurs de rendu. Ils survivent au node qui
+  // les a lancés et se disputent ensuite le processeur, au point de faire passer un
+  // rendu de 8 s à plus d'une minute. Le symptôme est indirect et se lit comme une
+  // lenteur du moteur, pas comme une fuite.
+  let closed = false
   const close = async () => {
+    if (closed) return
+    closed = true
+    process.off('SIGINT', onSignal)
+    process.off('SIGTERM', onSignal)
     await browser.close().catch(() => {})
     server.close()
   }
+  function onSignal() {
+    close().finally(() => process.exit(130))
+  }
+  process.once('SIGINT', onSignal)
+  process.once('SIGTERM', onSignal)
 
   try {
     const page = await browser.newPage()

@@ -275,6 +275,34 @@ Trois pièges au passage, dont deux faux diagnostics de ma part :
 3. Un dossier de document exécute le folio **installé**, pas le code local. Une modification du
    moteur ne se voit pas tant que le tag n'est pas publié et le verrou refait.
 
+### Enquête sur « le document de 34 pages met une minute » — le 2026-08-13
+
+**Le symptôme n'existait pas.** Mesuré proprement, ce document se construit en **8 secondes**.
+La minute observée venait de mes propres essais interrompus : chaque build tué laisse dix
+processus Chromium vivants, qui se disputent ensuite le processeur. La fuite se lit comme une
+lenteur du moteur, ce qu'elle n'est pas.
+
+Ce que la mesure par étapes donne, une fois la machine au repos :
+
+| Étape | 34 pages | 6 pages |
+|---|---|---|
+| `page.pdf()` | **7,4 s (70 %)** | 0,17 s |
+| Lancement de Chrome | 1,8 s | 0,8 s |
+| Pagination Paged.js | 1,1 s | 0,29 s |
+| Contrôle de débordement | 0,01 s | 0,00 s |
+| Rotation, serveur, relevés | ~0 | ~0 |
+
+L'impression est le poste dominant, et c'est du temps Chrome — rien de folio n'y est en cause.
+Le contrôle de débordement, que je soupçonnais d'être quadratique, coûte dix millisecondes.
+
+**Le vrai défaut, trouvé en cherchant le faux :** `build` ne fermait pas son navigateur quand
+on l'interrompait. `preview` gérait déjà `SIGINT` ; `build` n'écoutait rien, donc un Ctrl+C, un
+`SIGTERM` ou un délai de CI laissaient dix processus derrière. Corrigé.
+
+**Pas de banc de test pour verrouiller ça** : folio n'a aucune suite de tests. La sonde utilisée
+— lancer un build, l'interrompre, compter les processus survivants — est reproductible à la
+main mais n'est ancrée nulle part. C'est la première chose qui manquerait si le projet grossit.
+
 ## 7. Questions ouvertes
 
 - ~~**Nom du projet.**~~ Tranché le 2026-08-12 : **folio** — en typographie, le folio est le numéro de page imprimé, c'est-à-dire précisément ce que le projet apporte et qui manque aujourd'hui. La décision #6 garantit qu'un renommage ne toucherait aucun document.
