@@ -1,35 +1,78 @@
 <!doctype html>
 <meta charset="utf-8">
-<title>Titre du document</title>
-<meta name="author" content="I-MEDIA CONSULTING">
+<title>__TITRE__</title>
+
+<!-- Ces méta-données alimentent <cover-page>. Retirez-en une, elle disparaît
+     de la couverture ; il n'y a rien d'autre à faire. -->
+<meta name="eyebrow" content="Sous-titre de rubrique">
+<meta name="subtitle" content="Une phrase qui dit de quoi parle ce document.">
+<meta name="audience" content="À qui il s'adresse">
 <meta name="version" content="0.1">
+<meta name="author" content="">
 
-<!-- ÉBAUCHE. `folio init` est l'étape 5 du plan, volontairement la dernière :
-     on ne peut pas générer un bon squelette tant qu'on ne sait pas ce qu'est
-     un bon squelette. Ce fichier se figera une fois les deux documents de
-     recette portés. -->
-
-<!-- Le moteur est servi sous /_folio par `folio build` et `folio preview`.
-     NE PAS ouvrir ce fichier en double-cliquant : sous file://, Paged.js ne peut
-     pas lire la feuille de style, plante, et rend une page BLANCHE (spike 04).
-     Pour voir le document : `folio preview index.html`. -->
+<!-- NE PAS ouvrir ce fichier en double-cliquant dessus : sous file://, le
+     navigateur refuse à folio la lecture de sa feuille de style, la pagination
+     échoue et la page reste BLANCHE, sans message.
+     Pour voir le document : `npm run preview`. -->
 <link rel="stylesheet" href="/_folio/engine.css">
 <script type="module" src="/_folio/engine.js"></script>
 
 <style>
-  /* Le style propre au document vit ici. Surcharge de la police par défaut,
-     couleurs, composants d'habillage (encadrés, grilles) : tout ce qui n'est
-     pas du moteur. */
+  /* Le format appartient au document : folio n'en impose aucun, parce que le
+     moteur de pagination retient la PREMIÈRE déclaration `size` qu'il rencontre
+     — un défaut posé par l'outil empêcherait tout document d'en changer.
+     Cette ligne n'est donc pas facultative. */
+  @page { size: A4 portrait; }
+
+  /* Le reste de la charte du document vit ici : couleurs, corps, surcharges.
+     Pour changer de police :
+       :root { --folio-font: "…", sans-serif; --folio-mono: "…", monospace; }
+     Les polices par défaut (Source Sans 3, Source Code Pro) sont fournies et
+     auto-hébergées, donc le rendu ne dépend pas du poste. */
 </style>
 
 <cover-page></cover-page>
 
 <table-of-contents depth="2"></table-of-contents>
 
-<h1 id="premier-chapitre">Premier chapitre</h1>
-<p>Le contenu coule et se pagine tout seul.</p>
+<h1>Premier chapitre</h1>
+<p>
+  Le contenu coule et se pagine tout seul. Les titres nourrissent le sommaire, dont les
+  numéros de page sont résolus au moment du rendu — inutile de les tenir à jour.
+</p>
+
+<h2>Une section</h2>
+<p>Tableaux, blocs de code et citations sont déjà mis en forme :</p>
+
+<table>
+  <thead><tr><th>Colonne</th><th>Ce qu'elle contient</th></tr></thead>
+  <tbody>
+    <tr><td>Une valeur</td><td>Son explication</td></tr>
+  </tbody>
+</table>
+
+<pre><code>GET /exemple</code></pre>
+
+<h2>Une page composée</h2>
+<p>
+  Quand une page doit être posée à la main plutôt que coulée, on l'enferme dans une
+  <code>fixed-page</code>. Ce qui déborde est écrêté — mais folio refuse de produire le
+  PDF plutôt que de livrer un document mutilé.
+</p>
+
+<section class="fixed-page">
+  <p>Cette page est composée à la main.</p>
+</section>
+
+<h2>Une illustration en paysage</h2>
+<p>
+  La feuille reste au format du document ; c'est l'illustration qui pivote, et l'attribut
+  de rotation du PDF la remet à l'endroit chez le lecteur.
+</p>
 
 <landscape-plate>
-  <!-- Une illustration large. La feuille reste portrait ; le lecteur la verra
-       en paysage grâce au /Rotate posé sur le PDF. -->
+  <div style="width:100%;height:100%;border:1px solid #999;display:flex;
+              align-items:center;justify-content:center">
+    Une illustration large
+  </div>
 </landscape-plate>

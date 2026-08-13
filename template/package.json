@@ -1,0 +1,13 @@
+{
+  "name": "__NOM__",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "preview": "folio preview index.html",
+    "build": "folio build index.html"
+  },
+  "devDependencies": {
+    "folio": "github:gontran-anson/folio#__TAG__"
+  }
+}
