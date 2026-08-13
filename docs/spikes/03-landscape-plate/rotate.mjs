@@ -3,7 +3,7 @@
 import { createServer } from 'node:http'
 import { readFile as read, writeFile } from 'node:fs/promises'
 import { extname, join } from 'node:path'
-import puppeteer from 'puppeteer-core'
+import puppeteer from 'puppeteer'
 import { PDFDocument, degrees } from 'pdf-lib'
 
 const here = new URL('.', import.meta.url).pathname

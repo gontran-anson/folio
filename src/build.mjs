@@ -35,6 +35,7 @@ export async function build({ input, out, open, 'allow-overflow': allowOverflow,
     const pages = await page.evaluate(() => document.querySelectorAll('.pagedjs_page').length)
     const plateNote = plates.length ? `, dont ${plates.length} planche(s) paysage` : ''
     console.log(`folio : ${pages} page(s)${plateNote} → ${pdfPath}`)
+    console.log(`folio : rendu par ${page.folioBrowserVersion ?? 'un navigateur inconnu'}`)
 
     if (open) execFile('open', [pdfPath], () => {})
     return { pdfPath, pages, plates }

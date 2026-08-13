@@ -22,7 +22,7 @@ export const TOLERANCE_MM = 2
 const PX_PER_MM = 96 / 25.4
 
 /**
- * @param {import('puppeteer-core').Page} page  page déjà paginée
+ * @param {import('puppeteer').Page} page  page déjà paginée
  * @param {number} toleranceMm
  * @returns {Promise<Array<{ page: number, axis: string, overflowMm: number, culprit: string }>>}
  */

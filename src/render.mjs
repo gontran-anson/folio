@@ -3,9 +3,9 @@
 import { createRequire } from 'node:module'
 import { dirname, join, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import puppeteer from 'puppeteer-core'
+import puppeteer from 'puppeteer'
 
-import { findChrome } from './chrome.mjs'
+import { findChrome, chromeVersion } from './chrome.mjs'
 import { serve } from './server.mjs'
 import { DONE_FLAG, ERROR_FLAG, PLATE_PAGE_SELECTOR } from './paged.mjs'
 
@@ -50,7 +50,7 @@ export async function openPaginated(documentPath, { timeout = 30000 } = {}) {
 
   const server = await serve(mounts(documentDir))
   const browser = await puppeteer.launch({
-    executablePath: findChrome(),
+    executablePath: await findChrome(),
     headless: 'new',
   })
 
@@ -61,6 +61,9 @@ export async function openPaginated(documentPath, { timeout = 30000 } = {}) {
 
   try {
     const page = await browser.newPage()
+    // La version du navigateur fait partie de la provenance du PDF : deux rendus
+    // par des Chromium différents peuvent légitimement différer.
+    page.folioBrowserVersion = await chromeVersion(browser)
     const consoleErrors = []
     page.on('pageerror', (e) => consoleErrors.push(String(e.message ?? e)))
     page.on('requestfailed', (r) => consoleErrors.push(`${r.url()} — ${r.failure()?.errorText}`))

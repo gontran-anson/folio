@@ -92,7 +92,7 @@ Ce n'est pas une dégradation, c'est un **écran blanc** : Paged.js échoue à l
 |---|---|---|
 | 1 | **Système de document paginé**, pas un wrapper CLI ni des templates métier | — |
 | 2 | **Le contenu coule**, avec échappatoire page fixe pour les planches composées | le DOM imprimé ne ressemble plus au HTML source : déboguer une coupure devient moins direct |
-| 3 | **`puppeteer-core` + Chrome système**, jamais la CLI `--print-to-pdf` | le rendu dépend de la version de Chrome de chaque poste ; tenable tant qu'une seule personne commite le PDF |
+| 3 | ~~`puppeteer-core` + Chrome système~~ **RÉVISÉE le 2026-08-13** : `puppeteer` avec son Chromium épinglé | un téléchargement unique d'environ 180 Mo, mis en cache pour toute la machine. En échange, un PDF ne dépend plus de qui l'a produit |
 | 4 | **Tout en CSS, aucun fichier de config de design.** Un `pdfgen.config.json` optionnel ne porte que du build (entrée, sortie, chemin Chrome, timeout) | générer un document par script devient moins direct — mais c'est de la génération de HTML, un autre outil |
 | 5 | **Habillage → classe CSS. Calcul → composant.** Étendu en #9 | — |
 | 6 | **Noms composés naturels, sans préfixe** (`<cover-page>`, `<table-of-contents>`) — le tiret est imposé par la spec des custom elements, pas le namespace | rien n'indique dans le HTML d'où viennent ces balises ; impose de garder la liste courte |
@@ -221,6 +221,29 @@ aurait généré un squelette faux.
 Le critère retenu : **le document créé doit se construire du premier coup**, et il exerce
 les quatre marques — couverture, sommaire, page composée, planche paysage. Un `init` qui
 produit un document cassé serait pire que pas d'`init` du tout.
+
+### Révision de la décision #3 — le 2026-08-13
+
+Le compromis initial — piloter le Chrome du poste pour éviter 180 Mo de téléchargement — a
+tenu tant que le rendu dépendait de toute façon des polices du système. Une fois celles-ci
+embarquées (décision #13), **la version de Chrome restait la dernière cause de divergence**,
+et la seule chose qui empêchait une CI de régénérer les PDF.
+
+folio embarque donc son propre Chromium, épinglé par la version de puppeteer. La démonstration
+tenait en une ligne : sur ce poste, le Chrome système est en 151.0.7922.**109** quand le
+Chromium épinglé est en 151.0.7922.**77**. Deux navigateurs différents, deux paginations
+possibles, sur la même machine.
+
+`CHROME_PATH` reste une échappatoire — poste hors ligne, architecture sans build disponible —
+mais elle **avertit** désormais qu'elle annule la garantie, au lieu d'être silencieuse.
+
+Ce que ça ne règle pas : le PDF n'est toujours pas reproductible **à l'octet**, Chrome y
+écrivant un identifiant et une date de création. Supprimer la cause de divergence de mise en
+page n'est pas la même chose que produire deux fichiers identiques.
+
+Piège rencontré : `puppeteer.executablePath()` est **asynchrone** depuis puppeteer 25. Le
+traiter comme une valeur donne un chemin `Promise { <pending> }` et un message d'erreur qui
+accuse un Chromium manquant.
 
 ## 7. Questions ouvertes
 

@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer-core'
+import puppeteer from 'puppeteer'
 const here = new URL('.', import.meta.url).pathname
 const browser = await puppeteer.launch({
   executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: 'new' })

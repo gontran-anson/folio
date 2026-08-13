@@ -9,7 +9,7 @@ projet apporte, et ce qui manquait.
 ## Démarrer
 
 ```bash
-npx github:gontran-anson/folio#v0.5.0 init mon-document
+npx github:gontran-anson/folio#v0.6.0 init mon-document
 cd mon-document
 npm install
 npm run preview     # sert le document et ouvre le navigateur
@@ -70,18 +70,22 @@ Quatre marques structurent le contenu :
 
 ## Prérequis
 
-**Chrome ou Chromium installé.** folio ne télécharge jamais de navigateur : il pilote celui
-de la machine via `puppeteer-core`. Si le vôtre n'est pas à un emplacement usuel :
+**Rien à installer.** folio embarque son propre Chromium, épinglé, téléchargé une fois au
+premier `npm install` (~180 Mo) et mis en cache pour toute la machine. Avec les polices,
+également embarquées, **un PDF ne dépend plus de qui l'a produit** — c'est ce qui rend une
+régénération en CI possible.
+
+Échappatoire, si le téléchargement est impossible :
 
 ```bash
 export CHROME_PATH=/chemin/vers/chrome
 ```
 
-Conséquence assumée : le rendu dépend de la version de Chrome du poste. Tant qu'une seule
-personne produit le PDF, c'est indolore ; le jour où la CI le régénère, il faudra embarquer
-un Chromium. Les polices, elles, sont déjà embarquées — c'était l'autre moitié du problème.
+Elle annule la garantie, et folio le dit à chaque build plutôt que de laisser croire le
+contraire. Sur cette machine par exemple, le Chrome du poste est en 151.0.7922.109 quand le
+Chromium épinglé est en 151.0.7922.77.
 
-## Quatre choses à savoir avant de toucher au code
+## Cinq choses à savoir avant de toucher au code
 
 **1. N'ouvrez jamais un document en double-cliquant dessus.** Sous `file://`, Chrome bloque
 la lecture des feuilles de style par Paged.js ; le polyfill plante et rend une page
@@ -96,7 +100,11 @@ document d'en changer. C'est pourquoi `@page { size }` n'est pas facultatif.
 feuille reste portrait, le **contenu** tourne d'un quart de tour, et l'attribut `/Rotate`
 le remet à l'endroit chez le lecteur — comme le fait l'imprimerie depuis toujours.
 
-**4. Ces affirmations sont vérifiées, pas supposées.** Elles viennent de quatre spikes
+**4. `executablePath()` de puppeteer est asynchrone** depuis la version 25. Le traiter comme
+une valeur donne un chemin `Promise { <pending> }` et un message d'erreur qui accuse un
+Chromium manquant.
+
+**5. Ces affirmations sont vérifiées, pas supposées.** Elles viennent de quatre spikes
 conservés et rejouables dans [`docs/spikes/`](docs/spikes/) :
 
 ```bash
@@ -106,7 +114,7 @@ npm install && npm run spike:01
 ## Installation
 
 ```bash
-npm i github:gontran-anson/folio#v0.5.0
+npm i github:gontran-anson/folio#v0.6.0
 ```
 
 Épinglez un **tag**, jamais une branche : npm met les dépendances git en cache par commit,

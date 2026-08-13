@@ -3,7 +3,7 @@
 import { createServer } from 'node:http'
 import { readFile } from 'node:fs/promises'
 import { extname, join } from 'node:path'
-import puppeteer from 'puppeteer-core'
+import puppeteer from 'puppeteer'
 
 const here = new URL('.', import.meta.url).pathname
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css' }
